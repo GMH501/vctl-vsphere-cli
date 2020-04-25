@@ -4,6 +4,7 @@ setup(
     name="vc-vcenter-cli",
     version="0.1",
     author="Gabriel Meghnagi",
+    author_email="gabrielmeghnagi@outlook.it",
     py_modules=["vc"],
     include_package_data=True,
     install_requires=["click"],
