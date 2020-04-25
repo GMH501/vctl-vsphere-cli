@@ -1,6 +1,6 @@
 from pyvim.connect import SmartConnect, Disconnect
 from pyVmomi import vim, vmodl, SoapStubAdapter
-from helpers.context_helper import get_unverified_context
+from vc.helpers.context_helper import get_unverified_context
 import click
 import yaml
 
@@ -24,8 +24,7 @@ def auth(vcenter, username, password):
         context_name = vcenter + random_string
         context = {{'vcenter': vcenter, 
                    'username': username, 
-                   'cookie': si._stub.cookie},
-                   'name': context_name
+                   'cookie': si._stub.cookie}
                   }
         with open('config.yaml', 'w+') as stream:
             yaml.dump(session, stream)

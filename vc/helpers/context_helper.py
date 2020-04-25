@@ -24,7 +24,6 @@ def random_string(stringLength=5):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
-
-def load_session(filename='sessions.yaml'):
-    with open(filename', 'r') as stream:
-        yaml.safe_load()
+#def load_session(filename='sessions.yaml'):
+ #   with open(filename', 'r') as stream:
+  #      yaml.safe_load()
