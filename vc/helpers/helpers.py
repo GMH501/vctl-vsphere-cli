@@ -79,7 +79,7 @@ def dump_config(config):
 def create_context(si, vcenter, username):
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
-    context_name = vcenter + '-' + random_string()
+    context_name = 'vcenter - {}'.format(random_string())
     return {'context': {'vcenter': vcenter,
                         'username': username,
                         'token': token},

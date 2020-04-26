@@ -47,19 +47,40 @@ def rename(current, new):
     Rename a context name from CURRENT name to NEW name.\n
     ex.: vc config context rename <current> <new>
     """
+    if current == new:
+        return
     config = load_config()
     current_context = config['current-context']
-    for context in config['contexts']:
-        if context['name'] == current:
-            if context['name'] == current_context:
-                context['name'] = new
+    for _context in config['contexts']:
+        if _context['name'] == current:
+            if _context['name'] == current_context:
+                _context['name'] = new
                 config['current-context'] = new
                 dump_config(config)
                 return
-            context['name'] = new
+            _context['name'] = new
             dump_config(config)
             return
-    print('Context {} not found'.format(current))
+    print('Context not found.')
+
+
+@click.command()
+@click.argument('context', nargs=1)
+def use(context):
+    """
+    Set the current-context in vconfig file.\n
+    ex.: vc config context use <context-name>
+    """
+    config = load_config()
+    current_context = config['current-context']
+    if context == current_context:
+        return
+    for _context in config['contexts']:
+        if _context['name'] == context:
+            config['current-context'] = context
+            dump_config(config)
+            return
+    print('Context {} not found'.format(context))
 
 
 @click.command()

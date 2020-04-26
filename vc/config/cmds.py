@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from vc.config.subcmds import create, rename, contexts
+from vc.config.subcmds import create, rename, use, contexts
 
 
 @click.group()
@@ -21,11 +21,13 @@ def context():
     cmd: create
     cmd: close
     cmd: rename
+    cmd: use
     """
     pass
 
 context.add_command(create)
 context.add_command(rename)
+context.add_command(use)
 
 
 @config.group()
