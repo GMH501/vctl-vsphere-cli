@@ -1,27 +1,7 @@
 contexts:
 - context:
-    token: vmware_soap_session=85a15a3c-ca23-424e-b7b5-105c386b2e8f
+    token: vmware_soap_session=7b573467-4bfb-4c97-ba6e-9c6de4a7f146
     username: user
     vcenter: 127.0.0.1
-  name: 127.0.0.1-hfiqn
-- context:
-    token: vmware_soap_session=fda91caa-e1d1-43e3-891c-6c3170f9a8ec
-    username: user
-    vcenter: 127.0.0.1
-  name: 127.0.0.1-moqew
-- context:
-    token: vmware_soap_session=a56f19f0-052d-44df-b033-2caa11b4415f
-    username: user
-    vcenter: 127.0.0.1
-  name: 127.0.0.1-lgnbs
-- context:
-    token: vmware_soap_session=9a3650fe-1583-4801-8527-7a3079a3192b
-    username: user
-    vcenter: 127.0.0.1
-  name: 127.0.0.1-xrhnc
-- context:
-    token: vmware_soap_session=b97d0cd6-b98d-4976-bbb6-59e0737f5ea0
-    username: user
-    vcenter: 127.0.0.1
-  name: 127.0.0.1-qxzlf
-current-context: 127.0.0.1-qxzlf
+  name: 127.0.0.1-wawet
+current-context: 127.0.0.1-wawet

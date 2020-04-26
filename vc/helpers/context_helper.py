@@ -1,6 +1,9 @@
+import os
 import ssl
 import random
 import string
+import base64
+from pathlib import Path
 
 import yaml
 
@@ -26,31 +29,62 @@ def random_string(string_length=5):
     return ''.join(random.choice(letters) for i in range(string_length))
 
 
-def load_config(filename='config.yaml'):
+def load_yaml(filename):
+    """
+    Get yaml file and transform it to dictionary.
+    @return: dictionary.
+    @except: raise FileNotFoundError.
+    """
+    try:
+        with open(filename, 'r') as config_file:
+            return yaml.safe_load(config_file)
+    except Exception as e:
+        raise(e)
+
+
+def load_config():
     """
     Get config.yaml file and transform it to dictionary.
     @return: dictionary.
+    @except: raise FileNotFoundError.
     """
-    with open(filename, 'r') as config_file:
-        return yaml.safe_load(config_file)
+    home = str(Path.home())
+    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    try:
+        return load_yaml(config_path)
+    except Exception as e:
+        raise(e)
+        
+def setup_config():
+    home = str(Path.home())
+    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    base_config = {'contexts': [], 'current-context': ''}
+    try:
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, 'w') as opened_file:
+            yaml.dump(base_config, opened_file)
+    except Exception as e:
+        raise(e)
 
-
-def dump_config(config, filename='config.yaml'):
+def dump_config(config):
     """
-    Dump dictionary styled config into config.yaml.
+    Dump dictionary styled config into yaml config file.
     """
-    with open('config.yaml', 'w') as config_file:
-            yaml.dump(config, config_file)
+    home = str(Path.home())
+    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    with open(config_path, 'w') as opened_file:
+            yaml.dump(config, opened_file)
 
 
 def load_context():
     """
-    Get the current context dictionary.
+    Get the current context, dictionary styled.
     @return: dictionary.
-    @except: raise Exception if fail to found current-context in contexts.
+    @except: raise Exception.
     """
     config = load_config()
     for context in config['contexts']:
         if context['name'] == config['current-context']:
             return context
     raise Exception('No current-context found in config file.')
+
