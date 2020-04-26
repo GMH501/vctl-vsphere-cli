@@ -76,15 +76,31 @@ def dump_config(config):
             yaml.dump(config, opened_file)
 
 
-def load_context():
+def create_context(si, vcenter, username):
+    cookie = bytes(si._stub.cookie, encoding='utf-8')
+    token = base64.b64encode(cookie)
+    context_name = vcenter + '-' + random_string()
+    return {'context': {'vcenter': vcenter, 
+                        'username': username, 
+                        'token': token},
+                        'name': context_name}
+
+def load_context(decode=False):
     """
     Get the current context, dictionary styled.
     @return: dictionary.
     @except: raise Exception.
     """
     config = load_config()
-    for context in config['contexts']:
-        if context['name'] == config['current-context']:
+    for _context in config['contexts']:
+        if _context['name'] == config['current-context']:
+            context = _context['context']
+            if decode == True:
+                token = context['token']
+                b_cookie = base64.b64decode(token)
+                cookie = b_cookie.decode('UTF-8')
+                context['token'] = cookie
+                return context
             return context
     raise Exception('No current-context found in config file.')
 

@@ -3,7 +3,7 @@ from pyvim.connect import SmartConnect, Disconnect
 from pyVmomi import vim, vmodl, SoapStubAdapter
 import yaml
 
-from vc.helpers.context_helper import get_unverified_context, random_string, load_config, dump_config, setup_config
+from vc.helpers.helpers import get_unverified_context, random_string, load_config, dump_config, setup_config, create_context
 
 @click.command()
 @click.option('--vcenter', '-v', 
@@ -21,11 +21,7 @@ def context(vcenter, username, password):
                           user=username, 
                           pwd=password, 
                           sslContext=get_unverified_context())
-        context_name = vcenter + '-' + random_string()
-        context = {'context': {'vcenter': vcenter, 
-                               'username': username, 
-                               'token': si._stub.cookie},
-                   'name': context_name}
+        context = create_context(si, vcenter, username)
         try: 
             load_config()
         except FileNotFoundError:

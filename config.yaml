@@ -1,7 +1,0 @@
-contexts:
-- context:
-    token: vmware_soap_session=7b573467-4bfb-4c97-ba6e-9c6de4a7f146
-    username: user
-    vcenter: 127.0.0.1
-  name: 127.0.0.1-wawet
-current-context: 127.0.0.1-wawet
