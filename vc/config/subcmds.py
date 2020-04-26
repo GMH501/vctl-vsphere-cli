@@ -5,7 +5,6 @@ import yaml
 
 from vc.helpers.context_helper import get_unverified_context, random_string, load_config, dump_config
 
-
 @click.command()
 @click.option('--vcenter', '-v', 
               help='vcenter you want to conntect to.',
@@ -16,7 +15,7 @@ from vc.helpers.context_helper import get_unverified_context, random_string, loa
 @click.option('--password', '-p',
               help='password to connect to vcenter.',
               required=True)  
-def config(vcenter, username, password):
+def context(vcenter, username, password):
     try:
         si = SmartConnect(host=vcenter, 
                           user=username, 
@@ -41,3 +40,4 @@ def config(vcenter, username, password):
     except Exception as e:
         print(e)
         return
+

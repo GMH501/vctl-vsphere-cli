@@ -14,4 +14,14 @@ contexts:
     username: user
     vcenter: 127.0.0.1
   name: 127.0.0.1-lgnbs
-current-context: 127.0.0.1-moqew
+- context:
+    token: vmware_soap_session=9a3650fe-1583-4801-8527-7a3079a3192b
+    username: user
+    vcenter: 127.0.0.1
+  name: 127.0.0.1-xrhnc
+- context:
+    token: vmware_soap_session=b97d0cd6-b98d-4976-bbb6-59e0737f5ea0
+    username: user
+    vcenter: 127.0.0.1
+  name: 127.0.0.1-qxzlf
+current-context: 127.0.0.1-qxzlf
