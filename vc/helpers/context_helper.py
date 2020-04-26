@@ -4,8 +4,6 @@ import string
 
 import yaml
 
-from vc.exceptions.config_error import ConfigError
-
 
 def get_unverified_context():
     """
