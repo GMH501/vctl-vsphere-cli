@@ -16,7 +16,7 @@ from vc.helpers.context_helper import get_unverified_context, random_string, loa
 @click.option('--password', '-p',
               help='password to connect to vcenter.',
               required=True)  
-def auth(vcenter, username, password):
+def config(vcenter, username, password):
     try:
         si = SmartConnect(host=vcenter, 
                           user=username, 

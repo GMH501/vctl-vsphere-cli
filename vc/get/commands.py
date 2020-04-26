@@ -6,5 +6,13 @@ def get():
     pass
 
 @get.command()
+def clusters():
+    print(hosts)
+
+@get.command()
 def hosts():
-    print(vcenter)
+    print(hosts)
+
+@get.command()
+def vms():
+    print(vms)
