@@ -1,7 +1,10 @@
 import ssl
 import random
 import string
+
 import yaml
+
+from vc.exceptions.config_error import ConfigError
 
 
 def get_unverified_context():
@@ -35,5 +38,21 @@ def load_config(filename='config.yaml'):
 
 
 def dump_config(config, filename='config.yaml'):
+    """
+    Dump dictionary styled config into config.yaml.
+    """
     with open('config.yaml', 'w') as config_file:
             yaml.dump(config, config_file)
+
+
+def load_context():
+    """
+    Get the current context dictionary.
+    @return: dictionary.
+    @except: raise Exception if fail to found current-context in contexts.
+    """
+    config = load_config()
+    for context in config['contexts']:
+        if context['name'] == config['current-context']:
+            return context
+    raise Exception('No current-context found in config file.')

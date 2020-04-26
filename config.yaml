@@ -1,0 +1,17 @@
+contexts:
+- context:
+    token: vmware_soap_session=85a15a3c-ca23-424e-b7b5-105c386b2e8f
+    username: user
+    vcenter: 127.0.0.1
+  name: 127.0.0.1-hfiqn
+- context:
+    token: vmware_soap_session=fda91caa-e1d1-43e3-891c-6c3170f9a8ec
+    username: user
+    vcenter: 127.0.0.1
+  name: 127.0.0.1-moqew
+- context:
+    token: vmware_soap_session=a56f19f0-052d-44df-b033-2caa11b4415f
+    username: user
+    vcenter: 127.0.0.1
+  name: 127.0.0.1-lgnbs
+current-context: 127.0.0.1-moqew
