@@ -1,8 +1,10 @@
 import click
 from pyvim.connect import SmartConnect
 
-from vc.helpers.helpers import (get_unverified_context, load_config, dump_config, setup_config,
-                                create_context)
+from vc.helpers.helpers import load_config, dump_config, setup_config, create_context
+from vc.helpers.vmware import get_unverified_context
+from vc.exceptions.context_exceptions import ConfigNotFound
+
 
 @click.command()
 @click.option('--vcenter', '-v',
@@ -17,7 +19,7 @@ from vc.helpers.helpers import (get_unverified_context, load_config, dump_config
 def create(vcenter, username, password):
     """
     Open new context.\n
-    ex.: vc config context create -v <vcenter> -u <username> -p <password>
+    #ex.: vc config context create -v <vcenter> -u <username> -p <password>
     """
     try:
         si = SmartConnect(host=vcenter,
@@ -27,7 +29,7 @@ def create(vcenter, username, password):
         context = create_context(si, vcenter, username)
         try:
             load_config()
-        except FileNotFoundError:
+        except ConfigNotFound:
             setup_config()
         finally:
             config = load_config()
@@ -45,23 +47,28 @@ def create(vcenter, username, password):
 def rename(current, new):
     """
     Rename a context name from CURRENT name to NEW name.\n
-    ex.: vc config context rename <current> <new>
+    #ex.: vc config context rename <current> <new>
     """
     if current == new:
         return
-    config = load_config()
-    current_context = config['current-context']
-    for _context in config['contexts']:
-        if _context['name'] == current:
-            if _context['name'] == current_context:
+    try:
+        config = load_config()
+        current_context = config['current-context']
+        for _context in config['contexts']:
+            if _context['name'] == current:
+                if _context['name'] == current_context:
+                    _context['name'] = new
+                    config['current-context'] = new
+                    dump_config(config)
+                    return
                 _context['name'] = new
-                config['current-context'] = new
                 dump_config(config)
                 return
-            _context['name'] = new
-            dump_config(config)
-            return
-    print('Context not found.')
+        print('Context not found.')
+    except ConfigNotFound as exception:
+        print(exception.message)
+        return
+
 
 
 @click.command()
@@ -69,7 +76,7 @@ def rename(current, new):
 def use(context):
     """
     Set the current-context in vconfig file.\n
-    ex.: vc config context use <context-name>
+    #ex.: vc config context use <context-name>
     """
     config = load_config()
     current_context = config['current-context']
@@ -80,7 +87,7 @@ def use(context):
             config['current-context'] = context
             dump_config(config)
             return
-    print('Context {} not found'.format(context))
+    print('Context {} not found.'.format(context))
 
 
 @click.command()
@@ -103,5 +110,5 @@ def contexts():
                                                         _context['name'],
                                                         _context['context']['vcenter'],
                                                         _context['context']['username']))
-    except FileNotFoundError:
-        print('No contexts found, consider opening new one with: vc config open')
+    except ConfigNotFound as exception:
+        print(exception.message)

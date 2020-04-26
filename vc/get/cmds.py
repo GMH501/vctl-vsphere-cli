@@ -1,18 +1,10 @@
 import click
 
+from vc.get.subcmds import hosts
 
 @click.group()
 def get():
     pass
 
-@get.command()
-def clusters():
-    print(hosts)
+get.add_command(hosts)
 
-@get.command()
-def hosts():
-    print(hosts)
-
-@get.command()
-def vms():
-    print(vms)

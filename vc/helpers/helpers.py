@@ -1,5 +1,4 @@
 import os
-import ssl
 import random
 import string
 import base64
@@ -7,17 +6,7 @@ from pathlib import Path
 
 import yaml
 
-
-def get_unverified_context():
-    """
-    Get an unverified ssl context. Used to disable the server certificate
-    verification.
-    @return: unverified ssl context.
-    """
-    context = None
-    if hasattr(ssl, '_create_unverified_context'):
-        context = ssl._create_unverified_context()
-    return context
+from vc.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
 
 
 def random_string(string_length=5):
@@ -38,24 +27,27 @@ def load_yaml(filename):
     try:
         with open(filename, 'r') as config_file:
             return yaml.safe_load(config_file)
-    except Exception as e:
-        raise e
+    except:
+        raise FileNotFoundError
 
 
 def load_config():
     """
-    Get vconfig.yaml file and transform it to dictionary.
-    @return: dictionary.
-    @except: raise FileNotFoundError.
+    Get vconfig file and transform it to dictionary.\n
+    @return: dictionary.\n
+    @except: raise ConfigNotFound.\n
     """
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
     try:
         return load_yaml(config_path)
-    except Exception as e:
-        raise e
+    except FileNotFoundError:
+        raise ConfigNotFound('vconfig file not found in default path.')
 
 def setup_config():
+    """
+    Setup basic vconfig file in default path.
+    """
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
     base_config = {'contexts': [], 'current-context': ''}
@@ -79,7 +71,7 @@ def dump_config(config):
 def create_context(si, vcenter, username):
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
-    context_name = 'vcenter - {}'.format(random_string())
+    context_name = '{}-{}'.format(vcenter, random_string())
     return {'context': {'vcenter': vcenter,
                         'username': username,
                         'token': token},
@@ -102,4 +94,4 @@ def load_context(decode=False):
                 context['token'] = cookie
                 return context
             return context
-    raise Exception('No current-context found in config file.')
+    raise ContextNotFound('No current-context found in vconfig file.')
