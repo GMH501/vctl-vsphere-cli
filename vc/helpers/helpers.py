@@ -39,12 +39,12 @@ def load_yaml(filename):
         with open(filename, 'r') as config_file:
             return yaml.safe_load(config_file)
     except Exception as e:
-        raise(e)
+        raise e
 
 
 def load_config():
     """
-    Get config.yaml file and transform it to dictionary.
+    Get vconfig.yaml file and transform it to dictionary.
     @return: dictionary.
     @except: raise FileNotFoundError.
     """
@@ -53,8 +53,8 @@ def load_config():
     try:
         return load_yaml(config_path)
     except Exception as e:
-        raise(e)
-        
+        raise e
+
 def setup_config():
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
@@ -64,7 +64,7 @@ def setup_config():
         with open(config_path, 'w') as opened_file:
             yaml.dump(base_config, opened_file)
     except Exception as e:
-        raise(e)
+        raise e
 
 def dump_config(config):
     """
@@ -73,15 +73,15 @@ def dump_config(config):
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
     with open(config_path, 'w') as opened_file:
-            yaml.dump(config, opened_file)
+        yaml.dump(config, opened_file)
 
 
 def create_context(si, vcenter, username):
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = vcenter + '-' + random_string()
-    return {'context': {'vcenter': vcenter, 
-                        'username': username, 
+    return {'context': {'vcenter': vcenter,
+                        'username': username,
                         'token': token},
                         'name': context_name}
 
@@ -103,4 +103,3 @@ def load_context(decode=False):
                 return context
             return context
     raise Exception('No current-context found in config file.')
-

@@ -1,17 +1,53 @@
+import os
+from pathlib import Path
+
 import click
 
-from vc.config.subcmds import context
+from vc.config.subcmds import create, rename, contexts
+
 
 @click.group()
 def config():
+    """
+    Config and contexts related subcommands.
+    """
     pass
 
+
 @config.group()
-def new():
+def context():
+    """
+    Context related subcommands.
+    cmd: create
+    cmd: close
+    cmd: rename
+    """
     pass
 
-new.add_command(context)
+context.add_command(create)
+context.add_command(rename)
+
 
 @config.group()
+def get():
+    pass
+
+get.add_command(contexts)
+
+
+@config.command()
 def view():
-    pass
+    """
+    View vconfig.yaml configuration file.
+    @return: dictionary.
+    @except: raise FileNotFoundError.
+    """
+    home = str(Path.home())
+    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    try:
+        with open(config_path, 'r') as config_file:
+            config = config_file.read()
+            print(config)
+    except FileNotFoundError:
+        print('Config file does not exists yet, opening a context will automatically create it.')
+
