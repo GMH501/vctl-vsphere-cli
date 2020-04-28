@@ -11,7 +11,7 @@ from vc.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
 
 def random_string(string_length=5):
     """
-    Get random charachters for generating unique context name.
+    Get random charachters for generating unique context name.\n
     @return: random charachters.
     """
     letters = string.ascii_lowercase
@@ -20,8 +20,8 @@ def random_string(string_length=5):
 
 def load_yaml(filename):
     """
-    Get yaml file and transform it to dictionary.
-    @return: dictionary.
+    Get yaml file and transform it to dictionary.\n
+    @return: dictionary.\n
     @except: raise FileNotFoundError.
     """
     try:
@@ -35,7 +35,7 @@ def load_config():
     """
     Get vconfig file and transform it to dictionary.\n
     @return: dictionary.\n
-    @except: raise ConfigNotFound.\n
+    @except: raise ConfigNotFound.
     """
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
@@ -79,9 +79,9 @@ def create_context(si, vcenter, username):
 
 def load_context(decode=False):
     """
-    Get the current context, dictionary styled.
-    @return: dictionary.
-    @except: raise Exception.
+    Get the current context, dictionary styled.\n
+    @return: dictionary.\n
+    @except: raise ContextNotFound.
     """
     config = load_config()
     for _context in config['contexts']:
