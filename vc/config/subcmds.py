@@ -1,9 +1,10 @@
 import click
 from pyvim.connect import SmartConnect
 
-from vc.helpers.helpers import load_config, dump_config, setup_config, create_context
+from vc.helpers.helpers import load_config, dump_config, setup_config, create_context, load_context
 from vc.helpers.vmware import get_unverified_context
-from vc.exceptions.context_exceptions import ConfigNotFound
+from vc.exceptions.context_exceptions import ConfigNotFound, ContextNotFound
+from vc.helpers.auth import inject_token
 
 
 @click.command()
@@ -38,7 +39,7 @@ def create(vcenter, username, password):
             dump_config(config)
             return
     except Exception as e:
-        print(e)
+        print('Caught exception: ', e)
 
 
 @click.command()
@@ -70,6 +71,51 @@ def rename(current, new):
         return
 
 
+@click.command()
+@click.argument('context', nargs=1)
+def test(context):
+    try:
+        context = load_context(context=context)
+        try:
+            si = inject_token(context)
+            print(si.content)
+        except Exception as e:
+            print('Caught error: ', e)
+    except ContextNotFound:
+        print('Context not found.')
+
+
+
+####
+#### VA COMPLETATA L'IMPLEMENTAZIONE DEL LOGOUT (FUNZIONE A PARTE??)
+####
+@click.command()
+@click.argument('context', nargs=1)
+def close(context):
+    try:
+        context = load_context(context=context)
+        try:
+            si = inject_token(context)
+            content = si.RetrieveContent()
+            content.sessionManager.Logout()
+        except Exception as e:
+            print('Caught error: ', e)
+    except ContextNotFound:
+        print('Context not found.')
+
+
+@click.command()
+@click.argument('context', nargs=1)
+def remove(context):
+    try:
+        config = load_config()
+        for _context in config['contexts']:
+            if _context['name'] == context:
+                config['contexts'].remove(_context)
+                dump_config(config)
+        print('Context not found.')
+    except ConfigNotFound as e:
+        print(e.message)
 
 @click.command()
 @click.argument('context', nargs=1)
@@ -87,7 +133,7 @@ def use(context):
             config['current-context'] = context
             dump_config(config)
             return
-    print('Context {} not found.'.format(context))
+    print('Context not found.')
 
 
 @click.command()

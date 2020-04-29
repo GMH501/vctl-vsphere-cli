@@ -1,11 +1,12 @@
 import os
+import base64
 import random
 import string
-import base64
 from pathlib import Path
 
 import yaml
 
+from vc.helpers.auth import decode_token
 from vc.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
 
 
@@ -77,21 +78,23 @@ def create_context(si, vcenter, username):
                         'token': token},
                         'name': context_name}
 
-def load_context(decode=False):
+def load_context(context=None):
     """
     Get the current context, dictionary styled.\n
     @return: dictionary.\n
     @except: raise ContextNotFound.
     """
     config = load_config()
-    for _context in config['contexts']:
-        if _context['name'] == config['current-context']:
-            context = _context['context']
-            if decode == True:
-                token = context['token']
-                b_cookie = base64.b64decode(token)
-                cookie = b_cookie.decode('UTF-8')
-                context['token'] = cookie
+    if context:
+        for _context in config['contexts']:
+            if _context['name'] == context:
+                context = _context['context']
+                context['token'] = decode_token(context['token'])
                 return context
-            return context
-    raise ContextNotFound('No current-context found in vconfig file.')
+    else:
+        for _context in config['contexts']:
+            if _context['name'] == config['current-context']:
+                context = _context['context']
+                context['token'] = decode_token(context['token'])
+                return context
+    raise ContextNotFound('Context not found in vcconfig file.')

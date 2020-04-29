@@ -12,6 +12,6 @@ def hosts():
     try:
         context = load_context(decode=True)
         si = inject_token(context)
-        print(si.content)
+        print(si)
     except ContextNotFound as e:
         print(e.message)
