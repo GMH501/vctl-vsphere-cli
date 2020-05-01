@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="vc-vcenter-cli",
+    name="vcli",
     version="0.1",
     author="Gabriel Meghnagi",
     author_email="gabrielmeghnagi@outlook.it",

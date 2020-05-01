@@ -1,5 +1,5 @@
 import click
-from pyvim.connect import SmartConnectNoSSL
+from pyVmomi import vim
 
 from vc.helpers.vmware import get_obj
 from vc.helpers.helpers import load_context
@@ -10,8 +10,11 @@ from vc.exceptions.context_exceptions import ContextNotFound
 @click.command()
 def hosts():
     try:
-        context = load_context(decode=True)
+        context = load_context()
         si = inject_token(context)
-        print(si)
+        content = si.RetrieveContent()
+        hosts = get_obj(content, [vim.HostSystem])
+        print(hosts[0].config)
+
     except ContextNotFound as e:
         print(e.message)

@@ -26,7 +26,9 @@ def create(vcenter, username, password):
         si = SmartConnect(host=vcenter,
                           user=username,
                           pwd=password,
-                          sslContext=get_unverified_context())
+                          sslContext=get_unverified_context(),
+                          connectionPoolTimeout=-1)
+        print(si._stub.__dict__) #DEBUG
         context = create_context(si, vcenter, username)
         try:
             load_config()
@@ -72,13 +74,18 @@ def rename(current, new):
 
 
 @click.command()
-@click.argument('context', nargs=1)
+@click.option('--context', '-c',
+              help='the context you want to test.',
+              required=False)
 def test(context):
     try:
-        context = load_context(context=context)
+        if not context:
+            context = None
+        context= load_context(context=context)
         try:
             si = inject_token(context)
-            print(si.content)
+            print(si._stub.__dict__) #DEBUG
+            print(si.content.rootFolder.name) #DEBUG
         except Exception as e:
             print('Caught error: ', e)
     except ContextNotFound:
@@ -90,10 +97,14 @@ def test(context):
 #### VA COMPLETATA L'IMPLEMENTAZIONE DEL LOGOUT (FUNZIONE A PARTE??)
 ####
 @click.command()
-@click.argument('context', nargs=1)
+@click.option('--context', '-c',
+              help='the context you want to close.',
+              required=False)
 def close(context):
     try:
-        context = load_context(context=context)
+        if not context:
+            context = None
+        context= load_context(context=context)
         try:
             si = inject_token(context)
             content = si.RetrieveContent()
@@ -105,14 +116,20 @@ def close(context):
 
 
 @click.command()
-@click.argument('context', nargs=1)
+@click.option('--context', '-c',
+              help='the context you want to remove.',
+              required=False)
 def remove(context):
     try:
         config = load_config()
+        if not context:
+            context = config['current-context']
         for _context in config['contexts']:
             if _context['name'] == context:
                 config['contexts'].remove(_context)
+                config['current-context'] = ''
                 dump_config(config)
+                return
         print('Context not found.')
     except ConfigNotFound as e:
         print(e.message)
