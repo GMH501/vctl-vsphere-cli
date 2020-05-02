@@ -1,8 +1,8 @@
 import click
 
-from vc.config import cmds as cmds_config
-from vc.get import cmds as cmds_get
-from vc.describe import cmds as cmds_describe
+from vctl.config import cmds as cmds_config
+from vctl.get import cmds as cmds_get
+from vctl.describe import cmds as cmds_describe
 
 @click.group()
 def cli():

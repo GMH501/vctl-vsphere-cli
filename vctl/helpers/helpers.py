@@ -6,8 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from vc.helpers.auth import decode_token
-from vc.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
+from vctl.helpers.auth import decode_token
+from vctl.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
 
 
 def random_string(string_length=5):
@@ -70,8 +70,8 @@ def dump_config(config):
 
 
 def create_context(si, vcenter, username):
-    versioId = si._stub.versioId
-    version = si._stub.version
+    #versioId = si._stub.versionId
+    #version = si._stub.version
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = '{}-{}'.format(vcenter, random_string())

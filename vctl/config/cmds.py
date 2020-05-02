@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from vc.config.subcmds import create, rename, use, test, remove, close, contexts
+from vctl.config.subcmds import create, rename, use, test, remove, close, contexts
 
 
 @click.group()

@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name="vcli",
+    name="vctl",
     version="0.1",
     author="Gabriel Meghnagi",
     author_email="gabrielmeghnagi@outlook.it",
-    py_modules=["vc"],
+    py_modules=["vctl"],
     include_package_data=True,
-    install_requires=["click"],
+    install_requires=["click", "pyyaml", "pyvmomi", "pyvim"],
     entry_points="""
         [console_scripts]
-        vc=vc:cli
+        vctl=vctl:cli
     """,
     )

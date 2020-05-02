@@ -1,10 +1,13 @@
 import click
-from pyvim.connect import SmartConnect
+try:
+    from pyVim.connect import SmartConnect
+except:
+    from pyvim.connect import SmartConnect
 
-from vc.helpers.helpers import load_config, dump_config, setup_config, create_context, load_context
-from vc.helpers.vmware import get_unverified_context
-from vc.exceptions.context_exceptions import ConfigNotFound, ContextNotFound
-from vc.helpers.auth import inject_token
+from vctl.helpers.helpers import load_config, dump_config, setup_config, create_context, load_context
+from vctl.helpers.vmware import get_unverified_context
+from vctl.exceptions.context_exceptions import ConfigNotFound, ContextNotFound
+from vctl.helpers.auth import inject_token
 
 
 @click.command()
