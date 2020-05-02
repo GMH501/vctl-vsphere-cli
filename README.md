@@ -1,2 +1,2 @@
 ## VCTL
-### An API based command line utility for managing one or more vSphere environments.
+### An unofficial API based command line utility for inspecting one or more vSphere environments.
