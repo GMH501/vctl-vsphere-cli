@@ -6,8 +6,9 @@ from vctl.helpers.vmware import get_unverified_context
 
 
 def inject_token(context):
+    ns = '{}{}'.format('vim25/', context['apiversion'])
     soapStub = SoapStubAdapter(host=context['vcenter'], 
-                               ns="vim25/6.0",
+                               ns=ns,
                                sslContext=get_unverified_context(), 
                                connectionPoolTimeout=-1)
     si = vim.ServiceInstance("ServiceInstance", soapStub)

@@ -1,6 +1,7 @@
 import os
 import base64
 import random
+import re
 import string
 from pathlib import Path
 
@@ -70,12 +71,13 @@ def dump_config(config):
 
 
 def create_context(si, vcenter, username):
-    #versioId = si._stub.versionId
-    #version = si._stub.version
+    _version = si._stub.versionId
+    apiversion = re.findall('.*/(.*)"', _version)[0]
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
-    context_name = '{}-{}'.format(vcenter, random_string())
+    context_name = '{}#{}'.format(vcenter, random_string())
     return {'context': {'vcenter': vcenter,
+                        'apiversion': apiversion,
                         'username': username,
                         'token': token},
                         'name': context_name}

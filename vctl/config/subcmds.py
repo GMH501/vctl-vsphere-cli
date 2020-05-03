@@ -31,7 +31,7 @@ def create(vcenter, username, password):
                           pwd=password,
                           sslContext=get_unverified_context(),
                           connectionPoolTimeout=-1)
-        print(si._stub.__dict__) #DEBUG
+        print(si._stub.__dict__)
         context = create_context(si, vcenter, username)
         try:
             load_config()
@@ -95,10 +95,6 @@ def test(context):
         print('Context not found.')
 
 
-
-####
-#### VA COMPLETATA L'IMPLEMENTAZIONE DEL LOGOUT (FUNZIONE A PARTE??)
-####
 @click.command()
 @click.option('--context', '-c',
               help='the context you want to close.',

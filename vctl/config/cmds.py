@@ -35,9 +35,6 @@ context.add_command(close)
 
 @config.group()
 def get():
-    """
-    cmd: view
-    """
     pass
 
 get.add_command(contexts)
@@ -57,4 +54,4 @@ def view():
             config = config_file.read()
             print(config)
     except FileNotFoundError:
-        print('Config file does not exists yet, opening a context will automatically create it.')
+        print('Config file does not exists yet, creating a new context will automatically create it.')
