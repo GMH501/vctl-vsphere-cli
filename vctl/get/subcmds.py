@@ -18,7 +18,7 @@ def hosts():
                                                       'MEMORY %',
                                                       'CPU %',
                                                       'PARENT',
-                                                      'SPEC'))
+                                                      'VERSION'))
         for host in hosts:
             print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(host.name,
                                                     '',
