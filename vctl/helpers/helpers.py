@@ -71,12 +71,13 @@ def dump_config(config):
 
 
 def create_context(si, vcenter, username):
-    _version = si._stub.versionId
-    apiversion = re.findall('.*/(.*)"', _version)[0]
+    api_version = si._stub.versionId
+    apiversion = re.findall('.*/(.*)"', api_version)[0]
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = '{}#{}'.format(vcenter, random_string())
     return {'context': {'vcenter': vcenter,
+                        'version': si.content.about.fullName,
                         'apiversion': apiversion,
                         'username': username,
                         'token': token},

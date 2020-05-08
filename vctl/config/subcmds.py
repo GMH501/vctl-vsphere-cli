@@ -31,7 +31,6 @@ def create(vcenter, username, password):
                           pwd=password,
                           sslContext=get_unverified_context(),
                           connectionPoolTimeout=-1)
-        print(si._stub.__dict__)
         context = create_context(si, vcenter, username)
         try:
             load_config()
@@ -87,8 +86,6 @@ def test(context):
         context= load_context(context=context)
         try:
             si = inject_token(context)
-            print(si._stub.__dict__) #DEBUG
-            print(si.content.rootFolder.name) #DEBUG
         except Exception as e:
             print('Caught error: ', e)
     except ContextNotFound:
@@ -160,17 +157,20 @@ def contexts():
     try:
         config = load_config()
         current_context = config['current-context']
-        print('{:<10}{:<30}{:<30}{:<30}'.format('CURRENT', 'CONTEXT-NAME', 'VCENTER', 'USERNAME'))
+        print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format(
+              'CURRENT', 'CONTEXT-NAME', 'USERNAME', 'VCENTER', 'VERSION'))
         for _context in config['contexts']:
             if _context['name'] == current_context:
-                print('{:<10}{:<30}{:<30}{:<30}'.format('*',
-                                                        _context['name'],
-                                                        _context['context']['vcenter'],
-                                                        _context['context']['username']))
+                print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('*',
+                                                              _context['name'],
+                                                              _context['context']['username'],
+                                                              _context['context']['vcenter'],
+                                                              _context['context']['version']))
             else:
-                print('{:<10}{:<30}{:<30}{:<30}'.format('',
-                                                        _context['name'],
-                                                        _context['context']['vcenter'],
-                                                        _context['context']['username']))
+                print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
+                                                              _context['name'],
+                                                              _context['context']['username'],
+                                                              _context['context']['vcenter'],
+                                                              _context['context']['version']))
     except ConfigNotFound as exception:
         print(exception.message)
