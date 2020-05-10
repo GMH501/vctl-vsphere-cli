@@ -12,29 +12,42 @@ from vctl.exceptions.context_exceptions import ContextNotFound
               help='the context you want to use for run this command, \
                     default is current-context.',
               required=False)
-def hosts(context):
+@click.option('--cluster', '-cl',
+              help='the cluster for which you want to run the command.',
+              required=False)
+def hosts(context, cluster):
     try:
         context = load_context(context=context)
         si = inject_token(context)
         content = si.content
-        hosts = get_obj(content, [vim.HostSystem])
-        print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format('NAME',
-                                                      'MEMORY %',
-                                                      'CPU %',
-                                                      'PARENT',
-                                                      'VERSION'))
+        if cluster:
+            cluster = get_obj(content, [vim.ClusterComputeResource], cluster)
+            hosts = cluster.host
+        else:
+            hosts = get_obj(content, [vim.HostSystem])
+        print('{:<30}{:<15}{:<10}{:<15}{:<30}'.format('NAME',
+                                                      'MEMORY(MB)',
+                                                      'CPU',
+                                                      'VERSION',
+                                                      'PARENT'))
         for host in hosts:
             name = host.name
             parent = host.parent.name
-            version = host.config.product.fullName
-            print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(name,
-                                                          '',
-                                                          '',
-                                                          parent,
-                                                          version))
+            version = host.config.product.version
+            cores = host.hardware.cpuInfo.numCpuCores
+            memory_MB = round(host.hardware.memorySize / (1024*1024))
+            print('{:<30}{:<15}{:<10}{:<15}{:<30}'.format(name,
+                                                          memory_MB,
+                                                          cores,
+                                                          version,
+                                                          parent))
 
     except ContextNotFound:
         print('Context not found.')
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+    except AttributeError:
+        print('Command option contain invalid parameter.')
     except Exception as e:
         print('Caught error:', e)
 
@@ -56,6 +69,8 @@ def clusters():
 
     except ContextNotFound:
         print('Context not found.')
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
     except Exception as e:
         print('Caught error:', e)
 
@@ -80,5 +95,7 @@ def vms():
                                                           ''))
     except ContextNotFound:
         print('Context not found.')
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
     except Exception as e:
         print('Caught error:', e)

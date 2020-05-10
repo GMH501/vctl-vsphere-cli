@@ -5,10 +5,12 @@ import click
 def describe():
     pass
 
+
 @describe.command()
 def host():
-    print(hosts)
+    print('hosts')
+
 
 @describe.command()
 def vm():
-    print(vm)
+    print('vm')
