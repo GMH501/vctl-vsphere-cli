@@ -102,4 +102,4 @@ def load_context(context=None):
                 context = _context['context']
                 context['token'] = decode_token(context['token'])
                 return context
-    raise ContextNotFound('Context not found in vcconfig file.')
+    raise ContextNotFound('Context not found in vconfig file.')

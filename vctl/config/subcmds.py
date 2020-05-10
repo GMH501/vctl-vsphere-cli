@@ -145,6 +145,7 @@ def use(context):
         if _context['name'] == context:
             config['current-context'] = context
             dump_config(config)
+            print("Switched to context {}.".format(context))
             return
     print('Context not found.')
 
