@@ -9,7 +9,8 @@ from vctl.exceptions.context_exceptions import ContextNotFound
 
 @click.command()
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, default is current-context.',
+              help='the context you want to use for run this command, \
+                    default is current-context.',
               required=False)
 def hosts(context):
     try:
@@ -27,16 +28,15 @@ def hosts(context):
             parent = host.parent.name
             version = host.config.product.fullName
             print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(name,
-                                                    '',
-                                                    '',
-                                                    parent,
-                                                    version))
+                                                          '',
+                                                          '',
+                                                          parent,
+                                                          version))
 
     except ContextNotFound:
         print('Context not found.')
     except Exception as e:
         print('Caught error:', e)
-        
 
 
 @click.command()
@@ -46,7 +46,8 @@ def clusters():
         si = inject_token(context)
         content = si.content
         hosts = get_obj(content, [vim.ComputeResource])
-        print('{:<30}{:<15}{:<15}{:<30}'.format('NAME', 'MEMORY %', 'CPU %', 'SPEC'))
+        print('{:<30}{:<15}{:<15}{:<30}'.format(
+              'NAME', 'MEMORY %', 'CPU %', 'SPEC'))
         for host in hosts:
             print('{:<30}{:<15}{:<15}{:<30}'.format(host.name,
                                                     '',
@@ -73,10 +74,10 @@ def vms():
                                                       'SPEC'))
         for vm in vms:
             print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(vm.name,
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    ''))
+                                                          '',
+                                                          '',
+                                                          '',
+                                                          ''))
     except ContextNotFound:
         print('Context not found.')
     except Exception as e:

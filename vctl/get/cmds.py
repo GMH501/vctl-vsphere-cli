@@ -11,4 +11,3 @@ def get():
 get.add_command(vms)
 get.add_command(hosts)
 get.add_command(clusters)
-
