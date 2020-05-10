@@ -46,6 +46,7 @@ def load_config():
     except FileNotFoundError:
         raise ConfigNotFound('vconfig file not found in default path.')
 
+
 def setup_config():
     """
     Setup basic vconfig file in default path.
@@ -59,6 +60,7 @@ def setup_config():
             yaml.dump(base_config, opened_file)
     except Exception as e:
         raise e
+
 
 def dump_config(config):
     """
@@ -81,7 +83,8 @@ def create_context(si, vcenter, username):
                         'apiversion': apiversion,
                         'username': username,
                         'token': token},
-                        'name': context_name}
+            'name': context_name}
+
 
 def load_context(context=None):
     """

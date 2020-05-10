@@ -7,9 +7,9 @@ from vctl.helpers.vmware import get_unverified_context
 
 def inject_token(context):
     ns = '{}{}'.format('vim25/', context['apiversion'])
-    soapStub = SoapStubAdapter(host=context['vcenter'], 
+    soapStub = SoapStubAdapter(host=context['vcenter'],
                                ns=ns,
-                               sslContext=get_unverified_context(), 
+                               sslContext=get_unverified_context(),
                                connectionPoolTimeout=-1)
     si = vim.ServiceInstance("ServiceInstance", soapStub)
     si._stub.cookie = context['token']

@@ -4,7 +4,7 @@ python:
 
 before_install:
     - pip install pep8
-    - pep8 $TRAVIS_BUILD_DIR/vctl/helpers/vmware.py
+    - pep8 $TRAVIS_BUILD_DIR/vctl/helpers/*.py
 
 install:
     - pip install -e file://$TRAVIS_BUILD_DIR
