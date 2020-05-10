@@ -16,18 +16,20 @@ def get_unverified_context():
 def get_obj(content, vimtype, name=None):
     """
      Get the vsphere object associated with a given text name or vimtype.
-    """    
+    """
     obj = None
     objects = []
-    container = content.viewManager.CreateContainerView(content.rootFolder, vimtype, True)
+    container = content.viewManager.CreateContainerView(content.rootFolder,
+                                                        vimtype,
+                                                        True)
     objects = [i for i in container.view]
     if name:
-     for c in container.view:
-        if c.name == name:
-            obj = c
-            break
-     container.Destroy()
-     return obj
+        for c in container.view:
+            if c.name == name:
+                obj = c
+                break
+        container.Destroy()
+        return obj
     else:
-     container.Destroy()
-     return objects
+        container.Destroy()
+        return objects
