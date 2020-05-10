@@ -3,7 +3,8 @@ from pathlib import Path
 
 import click
 
-from vctl.config.subcmds import create, rename, use, test, remove, close, contexts
+from vctl.config.subcmds import (
+    create, rename, use, test, remove, close, contexts)
 
 
 @click.group()
@@ -54,4 +55,5 @@ def view():
             config = config_file.read()
             print(config)
     except FileNotFoundError:
-        print('Config file does not exists yet, creating a new context will automatically create it.')
+        print('Config file does not exists yet, \
+               creating a new context will automatically create it.')

@@ -4,7 +4,8 @@ try:
 except:
     from pyvim.connect import SmartConnect
 
-from vctl.helpers.helpers import load_config, dump_config, setup_config, create_context, load_context
+from vctl.helpers.helpers import (
+    load_config, dump_config, setup_config, create_context, load_context)
 from vctl.helpers.vmware import get_unverified_context
 from vctl.exceptions.context_exceptions import ConfigNotFound, ContextNotFound
 from vctl.helpers.auth import inject_token
@@ -83,7 +84,7 @@ def test(context):
     try:
         if not context:
             context = None
-        context= load_context(context=context)
+        context = load_context(context=context)
         try:
             si = inject_token(context)
         except Exception as e:
@@ -100,7 +101,7 @@ def close(context):
     try:
         if not context:
             context = None
-        context= load_context(context=context)
+        context = load_context(context=context)
         try:
             si = inject_token(context)
             content = si.RetrieveContent()
@@ -129,6 +130,7 @@ def remove(context):
         print('Context not found.')
     except ConfigNotFound as e:
         print(e.message)
+
 
 @click.command()
 @click.argument('context', nargs=1)
@@ -164,14 +166,14 @@ def contexts():
             if _context['name'] == current_context:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('*',
                                                               _context['name'],
-                                                              _context['context']['username'],
-                                                              _context['context']['vcenter'],
-                                                              _context['context']['version']))
+                                                              _context['context']['username'],  # nopep8
+                                                              _context['context']['vcenter'],   # nopep8
+                                                              _context['context']['version']))  # nopep8
             else:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
-                                                              _context['context']['username'],
-                                                              _context['context']['vcenter'],
-                                                              _context['context']['version']))
+                                                              _context['context']['username'],  # nopep8
+                                                              _context['context']['vcenter'],   # nopep8
+                                                              _context['context']['version']))  # nopep8
     except ConfigNotFound as exception:
         print(exception.message)
