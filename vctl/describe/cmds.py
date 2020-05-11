@@ -1,16 +1,17 @@
 import click
 
+from vctl.describe.subcmds import host
 
 @click.group()
 def describe():
     pass
 
 
-@describe.command()
-def host():
-    print('hosts')
+describe.add_command(host)
 
 
 @describe.command()
 def vm():
     print('vm')
+
+

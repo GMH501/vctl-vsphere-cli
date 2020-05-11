@@ -57,3 +57,5 @@ def view():
     except FileNotFoundError:
         print('Config file does not exists yet, \
                creating a new context will automatically create it.')
+    except Exception as e:
+        print("Caught error: ", e)
