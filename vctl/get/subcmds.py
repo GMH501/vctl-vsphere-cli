@@ -22,6 +22,9 @@ def hosts(context, cluster):
         content = si.content
         if cluster:
             cluster = get_obj(content, [vim.ClusterComputeResource], cluster)
+            if not hasattr(cluster, 'host'):
+                print('Invalid argument.')
+                return
             hosts = cluster.host
         else:
             hosts = get_obj(content, [vim.HostSystem])
@@ -46,33 +49,31 @@ def hosts(context, cluster):
         print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
-    except AttributeError:
-        print('Command option contain invalid parameter.')
     except Exception as e:
         print('Caught error:', e)
 
 
-@click.command()
-def clusters():
-    try:
-        context = load_context()
-        si = inject_token(context)
-        content = si.content
-        hosts = get_obj(content, [vim.ComputeResource])
-        print('{:<30}{:<15}{:<15}{:<30}'.format(
-              'NAME', 'MEMORY %', 'CPU %', 'SPEC'))
-        for host in hosts:
-            print('{:<30}{:<15}{:<15}{:<30}'.format(host.name,
-                                                    '',
-                                                    '',
-                                                    host.parent.name))
-
-    except ContextNotFound:
-        print('Context not found.')
-    except vim.fault.NotAuthenticated:
-        print('Context expired.')
-    except Exception as e:
-        print('Caught error:', e)
+#  @click.command()
+#  def clusters():
+#      try:
+#          context = load_context()
+#          si = inject_token(context)
+#          content = si.content
+#          hosts = get_obj(content, [vim.ComputeResource])
+#          print('{:<30}{:<15}{:<15}{:<30}'.format(
+#                'NAME', 'MEMORY %', 'CPU %', 'SPEC'))
+#          for host in hosts:
+#              print('{:<30}{:<15}{:<15}{:<30}'.format(host.name,
+#                                                      '',
+#                                                      '',
+#                                                      host.parent.name))
+#  
+#      except ContextNotFound:
+#          print('Context not found.')
+#      except vim.fault.NotAuthenticated:
+#          print('Context expired.')
+#      except Exception as e:
+#          print('Caught error:', e)
 
 
 @click.command()
@@ -83,19 +84,23 @@ def vms():
         content = si.content
         vms = get_obj(content, [vim.VirtualMachine])
         print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format('NAME',
-                                                      'MEMORY %',
-                                                      'CPU %',
+                                                      'MEMORY(MB)',
+                                                      'CPU',
                                                       'PARENT',
-                                                      'SPEC'))
+                                                      'STATUS'))
         for vm in vms:
+            hardware = vm.config.hardware
+            runtime = vm.summary.runtime
             print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(vm.name,
-                                                          '',
-                                                          '',
-                                                          '',
-                                                          ''))
+                                                          hardware.memoryMB,
+                                                          hardware.numCPU,
+                                                          runtime.host.name,
+                                                          runtime.powerState))
+
     except ContextNotFound:
         print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        print('Caught error:', e)
+        #print('Caught error:', e)
+        raise e

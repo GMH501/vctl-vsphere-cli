@@ -30,5 +30,6 @@ def get_obj(content, vimtype, name=None):
                 break
         container.Destroy()
         return obj
-    container.Destroy()
-    return objects
+    else:
+        container.Destroy()
+        return objects

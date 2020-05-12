@@ -71,8 +71,8 @@ def rename(current, new):
                 dump_config(config)
                 return
         print('Context not found.')
-    except ConfigNotFound as exception:
-        print(exception.message)
+    except ConfigNotFound as e:
+        print(e.message)
         return
 
 
@@ -166,14 +166,14 @@ def contexts():
             if _context['name'] == current_context:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('*',
                                                               _context['name'],
-                                                              _context['context']['username'],  # nopep8
-                                                              _context['context']['vcenter'],   # nopep8
-                                                              _context['context']['version']))  # nopep8
+                                                              _context['context']['username'],     # nopep8
+                                                              _context['context']['vcenter'],      # nopep8
+                                                              _context['context']['apiversion']))  # nopep8
             else:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
-                                                              _context['context']['username'],  # nopep8
-                                                              _context['context']['vcenter'],   # nopep8
-                                                              _context['context']['version']))  # nopep8
+                                                              _context['context']['username'],     # nopep8
+                                                              _context['context']['vcenter'],      # nopep8
+                                                              _context['context']['apiversion']))  # nopep8
     except ConfigNotFound as exception:
         print(exception.message)
