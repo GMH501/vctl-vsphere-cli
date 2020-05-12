@@ -27,7 +27,8 @@ def host(host, context):
         runtime = summary.runtime
         print("Runtime:")
         print("  inMaintenanceMode: ", runtime.inMaintenanceMode)
-        print("  bootTime:          ", runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z"))
+        print("  bootTime:          ", runtime.bootTime.strftime(
+                                            "%a, %d %b %Y %H:%M:%S %z"))
         print("  connectionState:   ", runtime.connectionState)
         print("  powerState:        ", runtime.powerState)
         print("  standbyMode:       ", runtime.standbyMode)
@@ -77,7 +78,8 @@ def vm(vm, context):
         runtime = summary.runtime
         print("Runtime:")
         print("  host:              ", runtime.host.name)
-        print("  bootTime:          ", runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z"))
+        print("  bootTime:          ", runtime.bootTime.strftime(
+                                            "%a, %d %b %Y %H:%M:%S %z"))
         print("  connectionState:   ", runtime.connectionState)
         print("  powerState:        ", runtime.powerState)
         hardware = vm.config.hardware

@@ -67,7 +67,6 @@ def hosts(context, cluster):
 #                                                      '',
 #                                                      '',
 #                                                      host.parent.name))
-#  
 #      except ContextNotFound:
 #          print('Context not found.')
 #      except vim.fault.NotAuthenticated:
@@ -102,5 +101,4 @@ def vms():
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        #print('Caught error:', e)
-        raise e
+        print('Caught error:', e)
