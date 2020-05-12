@@ -1,6 +1,6 @@
 import click
 
-from vctl.get.subcmds import hosts, clusters, vms
+from vctl.get.subcmds import hosts, vms
 
 
 @click.group()
