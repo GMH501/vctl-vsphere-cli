@@ -76,12 +76,23 @@ def hosts(context, cluster):
 
 
 @click.command()
-def vms():
+@click.option('--context', '-c',
+              help='the context you want to use for run this command, \
+                    default is current-context.',
+              required=False)
+@click.option('--host', '-h',
+              help='the host for which you want to disply the vms.',
+              required=False)
+def vms(context, host):
     try:
-        context = load_context()
+        context = load_context(context=context)
         si = inject_token(context)
         content = si.content
-        vms = get_obj(content, [vim.VirtualMachine])
+        if host:
+            host = get_obj(content, [vim.HostSystem], host)
+            vms = host.vm
+        else:
+            vms = get_obj(content, [vim.VirtualMachine])
         print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format('NAME',
                                                       'MEMORY(MB)',
                                                       'CPU',

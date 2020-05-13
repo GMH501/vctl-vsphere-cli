@@ -44,7 +44,7 @@ def load_config():
     try:
         return load_yaml(config_path)
     except FileNotFoundError:
-        raise ConfigNotFound('vconfig file not found in default path.')
+        raise ConfigNotFound('config file not found in default path.')
 
 
 def setup_config():
