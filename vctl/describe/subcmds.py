@@ -1,3 +1,4 @@
+import json
 import datetime
 
 import click
@@ -52,13 +53,20 @@ def host(host, context):
         print('Caught error:', e)
 
 
+import yaml
+
+
 @click.command()
 @click.argument('vm', nargs=1)
 @click.option('--context', '-c',
               help='the context you want to use for run this command, \
                     default is current-context.',
               required=False)
-def vm(vm, context):
+@click.option('--output', '-o',
+              help='the context you want to use for run this command, \
+                    default is current-context.',
+              required=False)
+def vm(vm, context, output):
     context = load_context(context=context)
     si = inject_token(context)
     content = si.content
@@ -66,33 +74,40 @@ def vm(vm, context):
     summary = vm.summary
     config = summary.config
     guest = summary.guest
-    try:
-        print("Config:")
-        print("  name:              ", config.name)
-        print("  vmPath:            ", config.vmPathName)
-        print("Guest:")
-        print("  hostName:          ", guest.hostName)
-        print("  guestOS:           ", guest.guestFullName)
-        print("  ipAddress:         ", guest.ipAddress)
-        print("  hwVersion:         ", guest.hwVersion)
-        runtime = summary.runtime
-        print("Runtime:")
-        print("  host:              ", runtime.host.name)
-        print("  bootTime:          ", runtime.bootTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z"))
-        print("  connectionState:   ", runtime.connectionState)
-        print("  powerState:        ", runtime.powerState)
-        hardware = vm.config.hardware
-        print("Hardware:")
-        print("  numCPU:            ", hardware.numCPU)
-        print("  numCoresPerSocket: ", hardware.numCoresPerSocket)
-        print("  memoryMB:          ", hardware.memoryMB)
-        print("  numEthernetCards:  ", config.numEthernetCards)
-        print("  numVirtualDisks:   ", config.numVirtualDisks)
+    vm_obj = {'config': {'name': config.name, 
+                         'vmPath': config.vmPathName}
+            }
+    if output == 'json':
+        print(json.dumps(vm_obj,indent=4, sort_keys=True))
+        return
+    print(yaml.dump(vm_obj, default_flow_style=False))
+    #try:
+    #    print("Config:")
+    #    print("  name:              ", config.name)
+    #    print("  vmPath:            ", config.vmPathName)
+    #    print("Guest:")
+    #    print("  hostName:          ", guest.hostName)
+    #    print("  guestOS:           ", guest.guestFullName)
+    #    print("  ipAddress:         ", guest.ipAddress)
+    #    print("  hwVersion:         ", guest.hwVersion)
+    #    runtime = summary.runtime
+    #    print("Runtime:")
+    #    print("  host:              ", runtime.host.name)
+    #    print("  bootTime:          ", runtime.bootTime.strftime(
+    #                                        "%a, %d %b %Y %H:%M:%S %z"))
+    #    print("  connectionState:   ", runtime.connectionState)
+    #    print("  powerState:        ", runtime.powerState)
+    #    hardware = vm.config.hardware
+    #    print("Hardware:")
+    #    print("  numCPU:            ", hardware.numCPU)
+    #    print("  numCoresPerSocket: ", hardware.numCoresPerSocket)
+    #    print("  memoryMB:          ", hardware.memoryMB)
+    #    print("  numEthernetCards:  ", config.numEthernetCards)
+    #    print("  numVirtualDisks:   ", config.numVirtualDisks)
 
-    except ContextNotFound:
-        print('Context not found.')
-    except vim.fault.NotAuthenticated:
-        print('Context expired.')
-    except Exception as e:
-        print('Caught error:', e)
+    #except ContextNotFound:
+    #    print('Context not found.')
+    #except vim.fault.NotAuthenticated:
+    #    print('Context expired.')
+    #except Exception as e:
+    #    print('Caught error:', e)
