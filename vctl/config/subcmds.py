@@ -175,7 +175,7 @@ def contexts():
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
                                                               _context['context']['username'],     # nopep8
-                                                              _context['context']['vcenter'],      # nopep8
+                                                             "", # _context['context']['vcenter'],      # nopep8
                                                               _context['context']['apiversion']))  # nopep8
     except ConfigNotFound as exception:
         print(exception.message)
