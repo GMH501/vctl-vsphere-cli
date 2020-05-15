@@ -69,6 +69,9 @@ import yaml
               default='yaml', 
               show_default=True)
 def vm(vm, context, output):
+    if output not in ['yaml', 'json']: 
+        print('Incorrect value for --output option [json|yaml].')
+        return
     context = load_context(context=context)
     si = inject_token(context)
     content = si.content
@@ -106,11 +109,8 @@ def vm(vm, context, output):
         }      
         if output == 'json':
             print(json.dumps(vm_obj, indent=4, sort_keys=True))
-        elif output == 'yaml':
+        else:
             print(yaml.dump(vm_obj, default_flow_style=False))
-        else: 
-            print('Incorrect value for --output option [json|yaml].')
-            return
 
     except ContextNotFound:
         print('Context not found.')
