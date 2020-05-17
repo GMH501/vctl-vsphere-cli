@@ -32,7 +32,6 @@ def create(vcenter, username, password):
                           pwd=password,
                           sslContext=get_unverified_context(),
                           connectionPoolTimeout=-1)
-        #print(si._stub.__dict__)
         context = create_context(si, vcenter, username)
         try:
             load_config()
@@ -88,7 +87,6 @@ def test(context):
         context = load_context(context=context)
         try:
             si = inject_token(context)
-            #print(si._stub.__dict__)
         except Exception as e:
             print('Caught error: ', e)
     except ContextNotFound:
@@ -175,7 +173,7 @@ def contexts():
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
                                                               _context['context']['username'],     # nopep8
-                                                             "", # _context['context']['vcenter'],      # nopep8
+                                                             _context['context']['vcenter'],      # nopep8
                                                               _context['context']['apiversion']))  # nopep8
     except ConfigNotFound as exception:
         print(exception.message)

@@ -1,10 +1,12 @@
 import json
 import datetime
+import sys
 
 import click
+import yaml
 from pyVmomi import vim
 
-from vctl.helpers.vmware import get_obj
+from vctl.helpers.vmware import get_obj, get_vm_hardware_lists, get_vm_obj
 from vctl.helpers.helpers import load_context
 from vctl.helpers.auth import inject_token
 from vctl.exceptions.context_exceptions import ContextNotFound
@@ -16,44 +18,82 @@ from vctl.exceptions.context_exceptions import ContextNotFound
               help='the context you want to use for run this command, \
                     default is current-context.',
               required=False)
-def host(host, context):
+@click.option('--output', '-o',
+              help='the context you want to use for run this command, \
+                    default is current-context.',
+              required=False, 
+              default='yaml', 
+              show_default=True)
+def host(host, context, output):
+    if output not in ['yaml', 'json']: 
+        print('Incorrect value for --output option [json|yaml].')
+        return
     try:
         context = load_context(context=context)
         si = inject_token(context)
         content = si.content
         host = get_obj(content, [vim.HostSystem], host)
+        if not hasattr(host, '_moId'):
+            print('Specified host not found.')
+            return
         summary = host.summary
-        print("Config:")
-        print("  name:              ", summary.config.name)
-        runtime = summary.runtime
-        print("Runtime:")
-        print("  inMaintenanceMode: ", runtime.inMaintenanceMode)
-        print("  bootTime:          ", runtime.bootTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z"))
-        print("  connectionState:   ", runtime.connectionState)
-        print("  powerState:        ", runtime.powerState)
-        print("  standbyMode:       ", runtime.standbyMode)
+        config = summary.config
         hardware = summary.hardware
-        print("Hardware:")
-        print("  vendor:            ", hardware.vendor)
-        print("  model:             ", hardware.model)
-        print("  memorySizeMB:      ", hardware.memorySize)
-        print("  cpuModel:          ", hardware.cpuModel)
-        print("  numCpuPkgs:        ", hardware.numCpuPkgs)
-        print("  numCpuCores:       ", hardware.numCpuCores)
-        print("  numCpuThreads:     ", hardware.numCpuThreads)
-        print("  numNics:           ", hardware.numNics)
-        print("  numHbas:           ", hardware.numHBAs)
-
+        runtime = summary.runtime
+        host_obj = {
+            'config': {
+                'name': config.name,
+            },
+            'hardware': {
+                'vendor':  hardware.vendor,
+                'model': hardware.model,
+                'memorySize': hardware.memorySize,
+                'cpuModel': hardware.cpuModel,
+                'numCpuPkgs': hardware.numCpuPkgs,
+                'numCpuCores': hardware.numCpuCores,
+                'numCpuThreads': hardware.numCpuThreads,
+                'numNics': hardware.numNics,
+                'numHBAs': hardware.numHBAs
+            },
+            'runtime': {
+                'inMaintenanceMode': runtime.inMaintenanceMode,
+                'bootTime': runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z"),
+                'connectionState': runtime.connectionState,
+                'powerState': runtime.powerState,
+                'standbyMode': runtime.standbyMode
+            }
+        }
+        if output == 'json':
+            json.dump(host_obj, sys.stdout, indent=4, sort_keys=True)
+        #else:
+            # yaml.dump(host_obj, sys.stdout, tags=None, default_flow_style=False)
+        summary = host.summary
+        stats = summary.quickStats
+        hardware = host.hardware
+        cpuUsage = stats.overallCpuUsage
+        memoryCapacity = hardware.memorySize
+        memoryCapacityInMB = hardware.memorySize/(1024)
+        memoryUsage = stats.overallMemoryUsage
+        freeMemoryPercentage = 100 - (
+            (float(memoryUsage) / memoryCapacityInMB) * 100
+        )
+        usageMemoryPercentage = (
+            (float(memoryUsage) / memoryCapacityInMB) * 100
+        )
+        print("--------------------------------------------------")
+        print("Host name: ", host.name)
+        # dump(host)
+        print("Host CPU usage: ", cpuUsage)
+        print("Host memory usage: ", memoryUsage / 1024, "GiB")
+        print("Free memory percentage: " + str(freeMemoryPercentage) + "%")
+        print("Usage memory percentage: " + str(usageMemoryPercentage) + "%")
+        print("--------------------------------------------------")
     except ContextNotFound:
         print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
         print('Caught error:', e)
-
-
-import yaml
 
 
 @click.command()
@@ -72,45 +112,20 @@ def vm(vm, context, output):
     if output not in ['yaml', 'json']: 
         print('Incorrect value for --output option [json|yaml].')
         return
-    context = load_context(context=context)
-    si = inject_token(context)
-    content = si.content
     try:
+        context = load_context(context=context)
+        si = inject_token(context)
+        content = si.content
         vm = get_obj(content, [vim.VirtualMachine], vm)
-        summary = vm.summary
-        config = summary.config
-        guest = summary.guest
-        runtime = summary.runtime
-        hardware = vm.config.hardware
-        vm_obj = {
-            'config': {
-                'name': config.name, 
-                'vmPath': config.vmPathName
-            },
-            'guest': {
-                'hostname':  guest.hostName,
-                'guestOS': guest.guestFullName,
-                'ipAddress': guest.ipAddress,
-                'hwVersion': guest.hwVersion
-            },
-            'runtime': {
-                'host': runtime.host.name,
-                'bootTime': runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z"),
-                'connectionState': str(runtime.connectionState),
-                'powerState': str(runtime.powerState)
-            },
-            'hardware': {
-                'numCPU': hardware.numCPU,
-                'numCoresPerSocket': hardware.numCoresPerSocket,
-                'memoryMB': hardware.memoryMB,
-                'numEthernetCards': config.numEthernetCards,
-                'numVirtualDisks': config.numVirtualDisks
-            }
-        }      
+        if not hasattr(vm, '_moId'):
+            print('Specified vm not found.')
+            return
+        vm_obj = get_vm_obj(vm)
         if output == 'json':
-            print(json.dumps(vm_obj, indent=4, sort_keys=True))
+            json.dump(vm_obj, sys.stdout, indent=4, sort_keys=False)
         else:
-            print(yaml.dump(vm_obj, default_flow_style=False))
+            yaml.dump(vm_obj, sys.stdout, tags=None, default_flow_style=False)
+
 
     except ContextNotFound:
         print('Context not found.')
