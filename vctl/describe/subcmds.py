@@ -6,7 +6,7 @@ import click
 import yaml
 from pyVmomi import vim
 
-from vctl.helpers.vmware import get_obj, get_vm_hardware_lists, get_vm_obj
+from vctl.helpers.vmware import get_obj, get_vm_hardware_lists, get_vm_obj, get_host_obj
 from vctl.helpers.helpers import load_context
 from vctl.helpers.auth import inject_token
 from vctl.exceptions.context_exceptions import ContextNotFound
@@ -18,16 +18,7 @@ from vctl.exceptions.context_exceptions import ContextNotFound
               help='the context you want to use for run this command, \
                     default is current-context.',
               required=False)
-@click.option('--output', '-o',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
-              required=False, 
-              default='yaml', 
-              show_default=True)
-def host(host, context, output):
-    if output not in ['yaml', 'json']: 
-        print('Incorrect value for --output option [json|yaml].')
-        return
+def host(host, context):
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -36,37 +27,9 @@ def host(host, context, output):
         if not hasattr(host, '_moId'):
             print('Specified host not found.')
             return
-        summary = host.summary
-        config = summary.config
-        hardware = summary.hardware
-        runtime = summary.runtime
-        host_obj = {
-            'config': {
-                'name': config.name,
-            },
-            'hardware': {
-                'vendor':  hardware.vendor,
-                'model': hardware.model,
-                'memorySize': hardware.memorySize,
-                'cpuModel': hardware.cpuModel,
-                'numCpuPkgs': hardware.numCpuPkgs,
-                'numCpuCores': hardware.numCpuCores,
-                'numCpuThreads': hardware.numCpuThreads,
-                'numNics': hardware.numNics,
-                'numHBAs': hardware.numHBAs
-            },
-            'runtime': {
-                'inMaintenanceMode': runtime.inMaintenanceMode,
-                'bootTime': runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z"),
-                'connectionState': runtime.connectionState,
-                'powerState': runtime.powerState,
-                'standbyMode': runtime.standbyMode
-            }
-        }
-        if output == 'json':
-            json.dump(host_obj, sys.stdout, indent=4, sort_keys=True)
-        #else:
-            # yaml.dump(host_obj, sys.stdout, tags=None, default_flow_style=False)
+        host_obj = get_host_obj(host)
+        json.dump(host_obj, sys.stdout, indent=4, sort_keys=True)
+        return
         summary = host.summary
         stats = summary.quickStats
         hardware = host.hardware
@@ -102,16 +65,7 @@ def host(host, context, output):
               help='the context you want to use for run this command, \
                     default is current-context.',
               required=False)
-@click.option('--output', '-o',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
-              required=False, 
-              default='yaml', 
-              show_default=True)
-def vm(vm, context, output):
-    if output not in ['yaml', 'json']: 
-        print('Incorrect value for --output option [json|yaml].')
-        return
+def vm(vm, context):
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -121,11 +75,7 @@ def vm(vm, context, output):
             print('Specified vm not found.')
             return
         vm_obj = get_vm_obj(vm)
-        if output == 'json':
-            json.dump(vm_obj, sys.stdout, indent=4, sort_keys=False)
-        else:
-            yaml.dump(vm_obj, sys.stdout, tags=None, default_flow_style=False)
-
+        json.dump(vm_obj, sys.stdout, indent=4, sort_keys=False)
 
     except ContextNotFound:
         print('Context not found.')

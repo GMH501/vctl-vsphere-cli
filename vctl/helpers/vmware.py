@@ -3,9 +3,9 @@ import datetime
 
 
 def get_unverified_context():
-    """
-    Get an unverified ssl context. Used to disable the server certificate
-    verification.
+    """Get an unverified ssl context. 
+    Used to disable the server certificate verification.
+
     @return: unverified ssl context.
     """
     context = None
@@ -100,8 +100,44 @@ def get_vm_obj(vm):
     }
     if runtime.bootTime is not None:
         vm_obj['runtime']['bootTime'] = runtime.bootTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z")
+                                            "%a, %d %b %Y %H:%M:%S %z"
+                                            )
     disk_list, network_list = get_vm_hardware_lists(hardware)
     vm_obj['hardware']['virtualDisks'] = disk_list
     vm_obj['hardware']['virtualNics'] = network_list
     return vm_obj
+
+
+def get_host_obj(host):
+    summary = host.summary
+    config = summary.config
+    hardware = summary.hardware
+    runtime = summary.runtime
+    host_obj = {
+        'config': {
+            'name': config.name,
+        },
+        'hardware': {
+            'vendor': hardware.vendor,
+            'model': hardware.model,
+            'memorySize': hardware.memorySize,
+            'cpuModel': hardware.cpuModel,
+            'numCpuPkgs': hardware.numCpuPkgs,
+            'numCpuCores': hardware.numCpuCores,
+            'numCpuThreads': hardware.numCpuThreads,
+            'numNics': hardware.numNics,
+            'numHBAs': hardware.numHBAs
+        },
+        'runtime': {
+            'inMaintenanceMode': runtime.inMaintenanceMode,
+            'bootTime': None,
+            'connectionState': runtime.connectionState,
+            'powerState': runtime.powerState,
+            'standbyMode': runtime.standbyMode
+        }
+    }
+    if runtime.bootTime is not None:
+        host_obj['runtime']['bootTime'] = runtime.bootTime.strftime(
+                                            "%a, %d %b %Y %H:%M:%S %z"
+                                            )
+    return host_obj
