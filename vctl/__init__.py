@@ -1,16 +1,19 @@
 import click
 
-from vctl.config import cmds as cmds_config
-from vctl.get import cmds as cmds_get
-from vctl.describe import cmds as cmds_describe
+from vctl.config.cmds import config
+from vctl.get.cmds import get
+from vctl.describe.cmds import describe
+from vctl.objects.snapshot import snapshot
+
 
 @click.group()
 def cli():
     pass
 
-cli.add_command(cmds_config.config)
-cli.add_command(cmds_get.get)
-cli.add_command(cmds_describe.describe)
+cli.add_command(config)
+cli.add_command(get)
+cli.add_command(describe)
+cli.add_command(snapshot)
 
 if __name__ == "__main__":
     cli()

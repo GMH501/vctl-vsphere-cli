@@ -1,6 +1,6 @@
 import base64
 
-from pyVmomi import vim, vmodl, SoapStubAdapter
+from pyVmomi import vim, SoapStubAdapter
 
 from vctl.helpers.vmware import get_unverified_context
 

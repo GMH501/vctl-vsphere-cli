@@ -6,7 +6,6 @@ import click
 from vctl.config.subcmds import (
     create, rename, use, test, remove, close, contexts)
 
-
 @click.group()
 def config():
     """
@@ -53,7 +52,7 @@ def view():
     try:
         with open(config_path, 'r') as config_file:
             config = config_file.read()
-            print(config)
+            print(config, end='')
     except FileNotFoundError:
         print('Config file does not exists yet, \
                creating a new context will automatically create it.')
