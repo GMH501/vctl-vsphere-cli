@@ -1,6 +1,7 @@
 import sys
 import time
-from datetime import datetime
+import json
+import datetime
 
 import click
 from pyVmomi import vim
@@ -56,6 +57,33 @@ def create(vm, context, snap_name, description, wait):
         print('Cught error:', e)
 
 
+def snapshot_obj(snap):
+    output = {
+        'snapshotInfo': {
+            'currentSnapshot': snap.currentSnapshot._moId,
+            'rootSnapshotList': snapshot_tree(snap.rootSnapshotList)
+        }
+    }
+    return output
+
+
+def snapshot_tree(snap_list):
+    output = []
+    for snapshot in snap_list:
+        snap_info = {}
+        snap_info['snapshot'] = snapshot.snapshot._moId
+        snap_info['name'] = snapshot.name
+        snap_info['createTime'] = snapshot.createTime.strftime(
+                                            "%a, %d %b %Y %H:%M:%S %z"
+                                            )
+        snap_info['state'] = snapshot.state
+        snap_info['quiesced'] = snapshot.quiesced
+        output.append(snap_info)
+        if snapshot.childSnapshotList != []:
+            snap_info['childSnapshotList'] = snapshot_tree(snapshot.childSnapshotList)
+    return output
+
+
 @snapshot.command()
 @click.option('--context', '-c',
               help='the context you want to use for run this command, default is current-context.',
@@ -73,8 +101,10 @@ def list(vm, context):
             print('Specified vm not found.')
             return
         if vm.snapshot is not None:
-            print(vm.snapshot.rootSnapshotList)
+            json.dump(snapshot_obj(vm.snapshot), sys.stdout, indent=4, sort_keys=False)
             return
         print('The selected vm does not have any snapshots.')
     except Exception as e:
         raise e
+
+

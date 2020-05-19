@@ -55,25 +55,24 @@ def rename(current, new):
     Rename a context name from CURRENT name to NEW name.\n
     #ex.: vc config context rename <current> <new>
     """
-    if current == new:
-        return
-    try:
-        config = load_config()
-        current_context = config['current-context']
-        for _context in config['contexts']:
-            if _context['name'] == current:
-                if _context['name'] == current_context:
+    if current != new:
+        try:
+            config = load_config()
+            current_context = config['current-context']
+            for _context in config['contexts']:
+                if _context['name'] == current:
+                    if _context['name'] == current_context:
+                        _context['name'] = new
+                        config['current-context'] = new
+                        dump_config(config)
+                        return
                     _context['name'] = new
-                    config['current-context'] = new
                     dump_config(config)
                     return
-                _context['name'] = new
-                dump_config(config)
-                return
-        print('Context not found.')
-    except ConfigNotFound as e:
-        print(e.message)
-        return
+            print('Context not found.')
+        except ConfigNotFound as e:
+            print(e.message)
+    return
 
 
 @click.command()
@@ -141,15 +140,15 @@ def use(context):
     """
     config = load_config()
     current_context = config['current-context']
-    if context == current_context:
-        return
-    for _context in config['contexts']:
-        if _context['name'] == context:
-            config['current-context'] = context
-            dump_config(config)
-            print("Switched to context {}.".format(context))
-            return
-    print('Context not found.')
+    if context != current_context:
+        for _context in config['contexts']:
+            if _context['name'] == context:
+                config['current-context'] = context
+                dump_config(config)
+                print("Switched to context {}.".format(context))
+                return
+        print('Context not found.')
+    return
 
 
 @click.command()
