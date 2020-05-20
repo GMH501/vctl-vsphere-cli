@@ -12,6 +12,6 @@ setup(
     install_requires=["click", "pyyaml", "pyvmomi", "pyvim"],
     entry_points="""
         [console_scripts]
-        vctl=vctl:cli
+        vctl=vctl:vctl
     """,
     )

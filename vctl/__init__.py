@@ -7,13 +7,10 @@ from vctl.objects.snapshot import snapshot
 
 
 @click.group()
-def cli():
+def vctl():
     pass
 
-cli.add_command(config)
-cli.add_command(get)
-cli.add_command(describe)
-cli.add_command(snapshot)
-
-if __name__ == "__main__":
-    cli()
+vctl.add_command(config)
+vctl.add_command(get)
+vctl.add_command(describe)
+vctl.add_command(snapshot)

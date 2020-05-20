@@ -15,15 +15,13 @@ def get_unverified_context():
 
 
 def get_obj(content, vimtype, name=None):
-    """
-     Get the vsphere object associated with a given text name or vimtype.
+    """Get the vsphere object associated with a given text name or vimtype.
     """
     obj = None
-    objects = []
     container = content.viewManager.CreateContainerView(content.rootFolder,
                                                         vimtype,
                                                         True)
-    objects = [i for i in container.view]
+    objects = list(container.view)
     if name:
         for c in container.view:
             if c.name == name:
@@ -60,11 +58,7 @@ def get_vm_hardware_lists(hardware):
 
 
 def get_vm_obj(vm):
-    """this is a docstring try
-    
-    | :param vm: vim.VirtualMachine
-    | :return:   dict containing vm spec
-    | :rtype:    dict
+    """
     """
     summary = vm.summary
     config = summary.config
@@ -141,3 +135,47 @@ def get_host_obj(host):
                                             "%a, %d %b %Y %H:%M:%S %z"
                                             )
     return host_obj
+
+
+def snapshot_tree(snap_list):
+    output = []
+    for snapshot in snap_list:
+        snap_info = {}
+        snap_info['snapshot'] = snapshot.snapshot._moId
+        snap_info['id'] = snapshot.id
+        snap_info['name'] = snapshot.name
+        snap_info['createTime'] = snapshot.createTime.strftime(
+                                            "%a, %d %b %Y %H:%M:%S %z"
+                                            )
+        snap_info['state'] = snapshot.state
+        snap_info['quiesced'] = snapshot.quiesced
+        output.append(snap_info)
+        if snapshot.childSnapshotList != []:
+            snap_info['childSnapshotList'] = snapshot_tree(snapshot.childSnapshotList)
+    return output
+
+
+def snapshot_obj(snap):
+    output = {
+        'snapshotInfo': {
+            'currentSnapshot': snap.currentSnapshot._moId,
+            'rootSnapshotList': snapshot_tree(snap.rootSnapshotList)
+        }
+    }
+    return output
+
+def search_snapshot(snapshot_list, name):
+    """
+    :param root_snapshot : vm.snapshot.rootSnapshotList
+    :type snapshot : list
+    :return : vim.vm.Snapshot
+    """
+    output = None
+    for snap in snapshot_list:
+        if snap.name == name:
+            output = snap.snapshot
+            break
+        if snap.childSnapshotList != []:
+            output = search_snapshot(snap.childSnapshotList, name)
+    return output
+            
