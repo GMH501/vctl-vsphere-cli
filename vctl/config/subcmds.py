@@ -14,18 +14,18 @@ except:
 
 @click.command()
 @click.option('--vcenter', '-v',
-              help='vcenter you want to conntect to.',
+              help='vCenter you want to conntect to.',
               required=True)
 @click.option('--username', '-u',
-              help='username to connect to vcenter.',
+              help='Username to use for connecting to vcenter.',
               required=True)
 @click.option('--password', '-p',
-              help='password to connect to vcenter.',
+              help='Password to use with the username.',
               required=True)
 def create(vcenter, username, password):
-    """
-    Open new context.\n
-    #ex.: vc config context create -v <vcenter> -u <username> -p <password>
+    """Create new context towards the specified vcenter.
+
+    # ex.: vctl config context create -v <vcenter> -u <username> -p <password>
     """
     try:
         si = SmartConnect(host=vcenter,
@@ -52,9 +52,9 @@ def create(vcenter, username, password):
 @click.argument('current', nargs=1)
 @click.argument('new', nargs=1)
 def rename(current, new):
-    """
-    Rename a context name from CURRENT name to NEW name.\n
-    #ex.: vc config context rename <current> <new>
+    """Rename a context name from <current> name to <new> name.
+    
+    # ex.: vctl config context rename <current> <new>
     """
     if current != new:
         try:
@@ -78,7 +78,7 @@ def rename(current, new):
 
 @click.command()
 @click.option('--context', '-c',
-              help='the context you want to test.',
+              help='The context you want to test.',
               required=False)
 def test(context):
     try:
@@ -87,6 +87,7 @@ def test(context):
         context = load_context(context=context)
         try:
             si = inject_token(context)
+            print(si.sessionManager)
         except Exception as e:
             print('Caught error: ', e)
     except ContextNotFound:
@@ -95,9 +96,14 @@ def test(context):
 
 @click.command()
 @click.option('--context', '-c',
-              help='the context you want to close.',
+              help='The context you want to close.',
               required=False)
 def close(context):
+    """Close the <context> towards the vcenter.\n
+    The default <context> is current-context.
+
+    # ex.: vctl config context close [-c <context>]
+    """
     try:
         if not context:
             context = None
@@ -114,9 +120,14 @@ def close(context):
 
 @click.command()
 @click.option('--context', '-c',
-              help='the context you want to remove.',
+              help='The context you want to remove.',
               required=False)
 def remove(context):
+    """Remove the <context> from the config file.\n
+    The default <context> is current-context.
+    
+    # ex.: vctl config context remove [-c <context>]
+    """
     try:
         config = load_config()
         if not context:
@@ -135,9 +146,9 @@ def remove(context):
 @click.command()
 @click.argument('context', nargs=1)
 def use(context):
-    """
-    Set the current-context in vconfig file.\n
-    #ex.: vc config context use <context-name>
+    """Set the current-context.
+
+    # ex.: vctl config context use <context>.
     """
     config = load_config()
     current_context = config['current-context']
@@ -154,8 +165,7 @@ def use(context):
 
 @click.command()
 def contexts():
-    """
-    Return all contexts in formatted style.
+    """Return all contexts in table formatted style.
     """
     try:
         config = load_config()

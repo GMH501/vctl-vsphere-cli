@@ -38,7 +38,7 @@ def hosts(context, cluster):
             parent = host.parent.name
             version = host.config.product.version
             cores = host.hardware.cpuInfo.numCpuCores
-            memory_MB = round(host.hardware.memorySize / (1024*1024))
+            memory_MB = round(host.hardware.memorySize / (1024 * 1024))
             print('{:<30}{:<15}{:<10}{:<15}{:<30}'.format(name,
                                                           memory_MB,
                                                           cores,
@@ -77,8 +77,7 @@ def hosts(context, cluster):
 
 @click.command()
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
+              help='the context you want to use for run this command, default is current-context.',
               required=False)
 @click.option('--host', '-h',
               help='the host for which you want to disply the vms.',

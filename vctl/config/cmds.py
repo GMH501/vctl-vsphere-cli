@@ -19,10 +19,6 @@ def config():
 def context():
     """
     Context related subcommands.
-    cmd: create
-    cmd: close
-    cmd: rename
-    cmd: use
     """
     pass
 
@@ -36,6 +32,9 @@ context.add_command(close)
 
 @config.group()
 def get():
+    """
+    Return all saved contexts.
+    """
     pass
 
 get.add_command(contexts)
@@ -44,18 +43,15 @@ get.add_command(contexts)
 @config.command()
 def view():
     """
-    View vconfig.yaml configuration file.
-    @return: dictionary.
-    @except: raise FileNotFoundError.
+    Return vctl configuration file.
     """
     home = str(Path.home())
-    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    config_path = os.path.join(home, '.vctl', 'config')
     try:
         with open(config_path, 'r') as config_file:
             config = config_file.read()
             print(config, end='')
     except FileNotFoundError:
-        print('Config file does not exists yet, \
-               creating a new context will automatically create it.')
+        print('Config file does not exists yet, creating a new context will automatically create it.')
     except Exception as e:
         print("Caught error: ", e)

@@ -11,26 +11,17 @@ from vctl.helpers.auth import decode_token
 from vctl.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
 
 
-def random_string(string_length=5):
-    """
-    Get random charachters for generating unique context name.\n
-    @return: random charachters.
+def random_string(n=5):
+    """Generate a random string of n charachters.
+
+    Args:
+        length (int): Number of random string charachters to return.
+
+    Returns:
+        String of n charachters.
     """
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(string_length))
-
-
-def load_yaml(filename):
-    """
-    Get yaml file and transform it to dictionary.\n
-    @return: dictionary.\n
-    @except: raise FileNotFoundError.
-    """
-    try:
-        with open(filename, 'r') as config_file:
-            return yaml.safe_load(config_file)
-    except:
-        raise FileNotFoundError
+    return ''.join(random.choice(letters) for i in range(n))
 
 
 def load_config():
@@ -40,11 +31,13 @@ def load_config():
     @except: raise ConfigNotFound.
     """
     home = str(Path.home())
-    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    config_path = os.path.join(home, '.vctl', 'config')
     try:
-        return load_yaml(config_path)
+        with open(config_path, 'r') as config_file:
+            return yaml.safe_load(config_file)
     except FileNotFoundError:
-        raise ConfigNotFound('config file not found in default path.')
+        print ('Configuration file not found in default path.')
+        exit()
 
 
 def setup_config():
@@ -52,7 +45,7 @@ def setup_config():
     Setup basic vconfig file in default path.
     """
     home = str(Path.home())
-    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    config_path = os.path.join(home, '.vctl', 'config')
     base_config = {'contexts': [], 'current-context': ''}
     try:
         os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -67,7 +60,7 @@ def dump_config(config):
     Dump dictionary styled config into yaml config file.
     """
     home = str(Path.home())
-    config_path = os.path.join(home, '.vctl', 'vconfig.yaml')
+    config_path = os.path.join(home, '.vctl', 'config')
     with open(config_path, 'w') as opened_file:
         yaml.dump(config, opened_file)
 
@@ -104,4 +97,4 @@ def load_context(context=None):
             context = _context['context']
             context['token'] = decode_token(context['token'])
             return context
-    raise ContextNotFound('Context not found in vconfig file.')
+    raise ContextNotFound('Context not found in config file.')
