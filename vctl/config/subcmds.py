@@ -3,7 +3,7 @@ import click
 from vctl.helpers.helpers import (
     load_config, dump_config, setup_config, create_context, load_context)
 from vctl.helpers.vmware import get_unverified_context
-from vctl.exceptions.context_exceptions import ConfigNotFound, ContextNotFound
+from vctl.exceptions.exceptions import ConfigNotFound, ContextNotFound
 from vctl.helpers.auth import inject_token
 
 try:
@@ -53,7 +53,7 @@ def create(vcenter, username, password):
 @click.argument('new', nargs=1)
 def rename(current, new):
     """Rename a context name from <current> name to <new> name.
-    
+
     # ex.: vctl config context rename <current> <new>
     """
     if current != new:
@@ -125,7 +125,7 @@ def close(context):
 def remove(context):
     """Remove the <context> from the config file.\n
     The default <context> is current-context.
-    
+
     # ex.: vctl config context remove [-c <context>]
     """
     try:

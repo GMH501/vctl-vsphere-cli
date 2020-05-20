@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 from vctl.helpers.auth import decode_token
-from vctl.exceptions.context_exceptions import ContextNotFound, ConfigNotFound
+from vctl.exceptions.exceptions import ContextNotFound, ConfigNotFound
 
 
 def random_string(n=5):
@@ -36,7 +36,7 @@ def load_config():
         with open(config_path, 'r') as config_file:
             return yaml.safe_load(config_file)
     except FileNotFoundError:
-        print ('Configuration file not found in default path.')
+        print('Configuration file not found in default path.')
         exit()
 
 
