@@ -4,10 +4,7 @@ python:
 
 before_install:
     - pip install pep8
-    - pep8 $TRAVIS_BUILD_DIR/vctl/helpers/*.py
-    - pep8 $TRAVIS_BUILD_DIR/vctl/config/*.py
-    - pep8 $TRAVIS_BUILD_DIR/vctl/get/*.py
-    - pep8 $TRAVIS_BUILD_DIR/vctl/describe/*.py
+    - pep8 $TRAVIS_BUILD_DIR/vctl/*/*.py --ignore E501
 
 install:
     - pip install -e file://$TRAVIS_BUILD_DIR

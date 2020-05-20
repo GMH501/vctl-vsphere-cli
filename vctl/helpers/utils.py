@@ -1,6 +1,7 @@
 import sys
 import time
 
+
 def _docstring():
     """Dummy function to test the ``Google`` docstring.
 
@@ -14,7 +15,7 @@ def _docstring():
     Examples:
         Examples should be written in doctest format, and should illustrate how
         to use the function.
-        
+
         >>> print([i for i in example_generator(4)])
         [0, 1, 2, 3]
     """
@@ -25,6 +26,7 @@ def progressMeter():
     while True:
         for cursor in '|/-\\':
             yield cursor
+
 
 spinner = progressMeter()
 

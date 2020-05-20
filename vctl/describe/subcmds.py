@@ -35,7 +35,7 @@ def host(host, context):
         hardware = host.hardware
         cpuUsage = stats.overallCpuUsage
         memoryCapacity = hardware.memorySize
-        memoryCapacityInMB = hardware.memorySize/(1024)
+        memoryCapacityInMB = hardware.memorySize / 1024
         memoryUsage = stats.overallMemoryUsage
         freeMemoryPercentage = 100 - (
             (float(memoryUsage) / memoryCapacityInMB) * 100

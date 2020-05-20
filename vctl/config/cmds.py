@@ -6,6 +6,7 @@ import click
 from vctl.config.subcmds import (
     create, rename, use, test, remove, close, contexts)
 
+
 @click.group()
 def config():
     """

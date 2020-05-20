@@ -1,9 +1,8 @@
 import ssl
-import datetime
 
 
 def get_unverified_context():
-    """Get an unverified ssl context. 
+    """Get an unverified ssl context.
     Used to disable the server certificate verification.
 
     @return: unverified ssl context.
@@ -42,7 +41,7 @@ def get_vm_hardware_lists(hardware):
                 {
                     'label': vm_hardware.deviceInfo.label,
                     'fileName': vm_hardware.backing.fileName,
-                    'capacityInGB': vm_hardware.capacityInKB/1024/1024,
+                    'capacityInGB': vm_hardware.capacityInKB / 1024 / 1024,
                     'thinProvisioned': vm_hardware.backing.thinProvisioned,
                 }
             )
@@ -67,11 +66,11 @@ def get_vm_obj(vm):
     hardware = vm.config.hardware
     vm_obj = {
         'config': {
-            'name': config.name, 
+            'name': config.name,
             'vmPath': config.vmPathName
         },
         'guest': {
-            'hostname':  guest.hostName,
+            'hostname': guest.hostName,
             'guestOS': guest.guestFullName,
             'ipAddress': guest.ipAddress,
             'hwVersion': guest.hwVersion
@@ -93,9 +92,7 @@ def get_vm_obj(vm):
         }
     }
     if runtime.bootTime is not None:
-        vm_obj['runtime']['bootTime'] = runtime.bootTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z"
-                                            )
+        vm_obj['runtime']['bootTime'] = runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z")
     disk_list, network_list = get_vm_hardware_lists(hardware)
     vm_obj['hardware']['virtualDisks'] = disk_list
     vm_obj['hardware']['virtualNics'] = network_list
@@ -131,9 +128,7 @@ def get_host_obj(host):
         }
     }
     if runtime.bootTime is not None:
-        host_obj['runtime']['bootTime'] = runtime.bootTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z"
-                                            )
+        host_obj['runtime']['bootTime'] = runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z")
     return host_obj
 
 
@@ -144,9 +139,7 @@ def snapshot_tree(snap_list):
         snap_info['snapshot'] = snapshot.snapshot._moId
         snap_info['id'] = snapshot.id
         snap_info['name'] = snapshot.name
-        snap_info['createTime'] = snapshot.createTime.strftime(
-                                            "%a, %d %b %Y %H:%M:%S %z"
-                                            )
+        snap_info['createTime'] = snapshot.createTime.strftime("%a, %d %b %Y %H:%M:%S %z")
         snap_info['state'] = snapshot.state
         snap_info['quiesced'] = snapshot.quiesced
         output.append(snap_info)
@@ -164,9 +157,11 @@ def snapshot_obj(snap):
     }
     return output
 
+
 def search_snapshot(snapshot_list, name):
     """
-    :param root_snapshot : vm.snapshot.rootSnapshotList
+    :param snapshot_list : vm.snapshot.rootSnapshotList
+    :param snapshot_list : vm.snapshot.childSnapshotList
     :type snapshot : list
     :return : vim.vm.Snapshot
     """
@@ -178,4 +173,3 @@ def search_snapshot(snapshot_list, name):
         if snap.childSnapshotList != []:
             output = search_snapshot(snap.childSnapshotList, name)
     return output
-            

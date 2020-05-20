@@ -121,6 +121,7 @@ def remove(vm, context, name, wait):
     except Exception as e:
         raise e
 
+
 @snapshot.command()
 @click.option('--context', '-c',
               help='the context you want to use for run this command, default is current-context.',
