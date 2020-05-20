@@ -4,7 +4,7 @@ from pyVmomi import vim
 from vctl.helpers.vmware import get_obj
 from vctl.helpers.helpers import load_context
 from vctl.helpers.auth import inject_token
-from vctl.exceptions.context_exceptions import ContextNotFound
+from vctl.exceptions.exceptions import ContextNotFound
 
 
 @click.command()
