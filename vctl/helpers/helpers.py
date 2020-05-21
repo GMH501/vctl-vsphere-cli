@@ -36,8 +36,7 @@ def load_config():
         with open(config_path, 'r') as config_file:
             return yaml.safe_load(config_file)
     except FileNotFoundError:
-        print('Configuration file not found in default path.')
-        exit()
+        raise ConfigNotFound
 
 
 def setup_config():

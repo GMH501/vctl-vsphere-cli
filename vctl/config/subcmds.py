@@ -62,17 +62,14 @@ def rename(current, new):
             current_context = config['current-context']
             for _context in config['contexts']:
                 if _context['name'] == current:
-                    if _context['name'] == current_context:
-                        _context['name'] = new
-                        config['current-context'] = new
-                        dump_config(config)
-                        return
                     _context['name'] = new
+                    if _context['name'] == current_context:
+                        config['current-context'] = new
                     dump_config(config)
                     return
             print('Context not found.')
-        except ConfigNotFound as e:
-            print(e.message)
+        except (ConfigNotFound, ContextNotFound):
+            print('Context not found.')
     return
 
 
@@ -82,15 +79,13 @@ def rename(current, new):
               required=False)
 def test(context):
     try:
-        if not context:
-            context = None
         context = load_context(context=context)
         try:
             si = inject_token(context)
             print(si.sessionManager)
         except Exception as e:
             print('Caught error: ', e)
-    except ContextNotFound:
+    except (ConfigNotFound, ContextNotFound):
         print('Context not found.')
 
 
@@ -105,8 +100,6 @@ def close(context):
     # ex.: vctl config context close [-c <context>]
     """
     try:
-        if not context:
-            context = None
         context = load_context(context=context)
         try:
             si = inject_token(context)
@@ -114,7 +107,7 @@ def close(context):
             content.sessionManager.Logout()
         except Exception as e:
             print('Caught error: ', e)
-    except ContextNotFound:
+    except (ConfigNotFound, ContextNotFound):
         print('Context not found.')
 
 
@@ -139,8 +132,8 @@ def remove(context):
                 dump_config(config)
                 return
         print('Context not found.')
-    except ConfigNotFound as e:
-        print(e.message)
+    except (ConfigNotFound, ContextNotFound):
+        print('Context not found.')
 
 
 @click.command()
@@ -176,14 +169,14 @@ def contexts():
             if _context['name'] == current_context:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('*',
                                                               _context['name'],
-                                                              _context['context']['username'],     # nopep8
-                                                              _context['context']['vcenter'],      # nopep8
-                                                              _context['context']['apiversion']))  # nopep8
+                                                              _context['context']['username'],
+                                                              _context['context']['vcenter'],
+                                                              _context['context']['apiversion']))
             else:
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
-                                                              _context['context']['username'],     # nopep8
-                                                             _context['context']['vcenter'],      # nopep8
-                                                              _context['context']['apiversion']))  # nopep8
-    except ConfigNotFound as exception:
-        print(exception.message)
+                                                              _context['context']['username'],
+                                                             _context['context']['vcenter'],
+                                                              _context['context']['apiversion']))
+    except ConfigNotFound:
+        print('Contexts not found, config file does not exists.')
