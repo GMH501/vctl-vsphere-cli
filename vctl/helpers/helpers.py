@@ -1,4 +1,6 @@
 import os
+import sys
+import json
 import base64
 import random
 import re
@@ -97,3 +99,16 @@ def load_context(context=None):
             context['token'] = decode_token(context['token'])
             return context
     raise ContextNotFound('Context not found in config file.')
+
+
+def jsonify(obj, sort=False):
+    """Dumps the object on standard output, json formatted.
+
+    Args:
+        obj (dict): the selected object to dumps.
+        sort (bool): sort the keys in the obj dict.
+    """
+    try:
+        json.dump(obj, sys.stdout, indent=4, sort_keys=sort)
+    except Exception as e:
+        raise e

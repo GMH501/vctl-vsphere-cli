@@ -1,13 +1,9 @@
-import json
-import datetime
-import sys
-
 import click
 import yaml
 from pyVmomi import vim
 
 from vctl.helpers.vmware import get_obj, get_vm_hardware_lists, get_vm_obj, get_host_obj
-from vctl.helpers.helpers import load_context
+from vctl.helpers.helpers import load_context, jsonify
 from vctl.helpers.auth import inject_token
 from vctl.exceptions.exceptions import ContextNotFound
 
@@ -28,7 +24,7 @@ def host(host, context):
             print('Specified host not found.')
             return
         host_obj = get_host_obj(host)
-        json.dump(host_obj, sys.stdout, indent=4, sort_keys=True)
+        jsonify(host_obj)
         return
         summary = host.summary
         stats = summary.quickStats
@@ -75,7 +71,7 @@ def vm(vm, context):
             print('Specified vm not found.')
             return
         vm_obj = get_vm_obj(vm)
-        json.dump(vm_obj, sys.stdout, indent=4, sort_keys=False)
+        jsonify(vm_obj)
 
     except ContextNotFound:
         print('Context not found.')

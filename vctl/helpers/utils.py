@@ -1,6 +1,11 @@
 import sys
 import time
 
+try:
+    from pyVim.task import WaitForTask
+except:
+    from pyvim.task import WaitForTask
+
 
 def _docstring():
     """Dummy function to test the ``Google`` docstring.
@@ -36,5 +41,13 @@ def taskProgress(task, percentDone):
     """
     sys.stdout.write(spinner.__next__())
     sys.stdout.flush()
-    time.sleep(0.8)
+    time.sleep(0.5)
     sys.stdout.write('\b')
+
+def waiting(task):
+    try:
+        WaitForTask(task, onProgressUpdate=taskProgress)
+        sys.stdout.write('\r ')
+        return
+    except:
+        raise

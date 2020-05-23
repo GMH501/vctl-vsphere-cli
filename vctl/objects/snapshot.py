@@ -1,20 +1,12 @@
 import sys
-import time
-import json
-import datetime
 
 import click
 from pyVmomi import vim
 
-from vctl.helpers.helpers import load_context
+from vctl.helpers.helpers import load_context, jsonify
 from vctl.helpers.vmware import get_obj, snapshot_tree, snapshot_obj, search_snapshot
 from vctl.helpers.auth import inject_token
-from vctl.helpers.utils import taskProgress
-
-try:
-    from pyVim.task import WaitForTask
-except:
-    from pyvim.task import WaitForTask
+from vctl.helpers.utils import waiting
 
 
 @click.group()
@@ -38,8 +30,12 @@ def snapshot():
 @click.option('--description', '-d',
               help='the context you want to use for run this command, default is current-context.',
               required=False)
+@click.option('--memory', '-m', is_flag=True)
+@click.option('--quiesce', '-q', is_flag=True)
 @click.option('--wait', '-w', is_flag=True)
-def create(vm, context, name, description, wait):
+def create(vm, context, name, description, memory, quiesce, wait):
+    """
+    """
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -48,13 +44,9 @@ def create(vm, context, name, description, wait):
         if not hasattr(vm, '_moId'):
             print('Specified vm not found.')
             return
-        task = vm.CreateSnapshot(name, description, memory=True, quiesce=False)
+        task = vm.CreateSnapshot(name, description, memory=memory, quiesce=quiesce)
         if wait:
-            try:
-                WaitForTask(task, onProgressUpdate=taskProgress)
-                sys.stdout.write('\r ')
-            except:
-                raise
+            waiting(task)
     except Exception as e:
         print('Cught error:', e)
 
@@ -76,11 +68,11 @@ def list(vm, context):
             print('Specified vm not found.')
             return
         if vm.snapshot is not None:
-            json.dump(snapshot_obj(vm.snapshot), sys.stdout, indent=4, sort_keys=False)
-            return
+            snap_obj = snapshot_obj(vm.snapshot)
+            jsonify(snap_obj)
         print('The selected vm does not have any snapshots.')
     except Exception as e:
-        raise e
+        print('Caught error:', e)
 
 
 @snapshot.command()
@@ -109,30 +101,26 @@ def remove(vm, context, name, wait):
             if snap is not None:
                 task = snap.RemoveSnapshot_Task(removeChildren=True)
                 if wait:
-                    try:
-                        WaitForTask(task, onProgressUpdate=taskProgress)
-                        sys.stdout.write('\r ')
-                    except:
-                        raise
-                return
+                    waiting(task)
             print('Snapshot not found.')
-            return
         print('The selected vm does not have any snapshots.')
     except Exception as e:
-        raise e
+        print('Caught error:', e)
 
 
 @snapshot.command()
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, default is current-context.',
+              help='Context you want to use for run this command, default is current-context.',
               required=False)
 @click.option('--vm', '-vm',
-              help='virtual machine on which you want to create the snapshot.',
+              help='Virtual Machine on which to create the snapshot.',
               required=True)
 @click.option('--name', '-n',
-              help='virtual machine on which you want to create the snapshot.',
+              help='Name for the snapshot.',
               required=True)
-@click.option('--wait', '-w', is_flag=True)
+@click.option('--wait', '-w', 
+              help='Wait for the task to complete.',
+              is_flag=True)
 def revert(vm, context, name, wait):
     try:
         context = load_context(context=context)
@@ -148,14 +136,8 @@ def revert(vm, context, name, wait):
             if snap is not None:
                 task = snap.RevertToSnapshot_Task()
                 if wait:
-                    try:
-                        WaitForTask(task, onProgressUpdate=taskProgress)
-                        sys.stdout.write('\r ')
-                    except:
-                        raise
-                return
+                    waiting(task)
             print('Snapshot not found.')
-            return
         print('The selected vm does not have any snapshots.')
     except Exception as e:
-        raise e
+        print('Caught error:', e)

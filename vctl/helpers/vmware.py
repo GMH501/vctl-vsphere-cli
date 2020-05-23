@@ -159,11 +159,14 @@ def snapshot_obj(snap):
 
 
 def search_snapshot(snapshot_list, name):
-    """
-    :param snapshot_list : vm.snapshot.rootSnapshotList
-    :param snapshot_list : vm.snapshot.childSnapshotList
-    :type snapshot : list
-    :return : vim.vm.Snapshot
+    """Search recursively for the snapshot with the specified name.
+    
+    Args:
+        snapshot_list (list): vm.snapshot.rootSnapshotList
+        name (string) : snapshot name
+
+    Return:
+        vim.vm.Snapshot else None
     """
     output = None
     for snap in snapshot_list:
