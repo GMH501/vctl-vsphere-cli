@@ -154,29 +154,3 @@ def use(context):
                 return
         print('Context not found.')
     return
-
-
-@click.command()
-def contexts():
-    """Return all contexts in table formatted style.
-    """
-    try:
-        config = load_config()
-        current_context = config['current-context']
-        print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format(
-              'CURRENT', 'CONTEXT-NAME', 'USERNAME', 'VCENTER', 'VERSION'))
-        for _context in config['contexts']:
-            if _context['name'] == current_context:
-                print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('*',
-                                                              _context['name'],
-                                                              _context['context']['username'],
-                                                              _context['context']['vcenter'],
-                                                              _context['context']['apiversion']))
-            else:
-                print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
-                                                              _context['name'],
-                                                              _context['context']['username'],
-                                                             _context['context']['vcenter'],
-                                                              _context['context']['apiversion']))
-    except ConfigNotFound:
-        print('Contexts not found, config file does not exists.')

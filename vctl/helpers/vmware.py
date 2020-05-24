@@ -67,12 +67,16 @@ def get_vm_obj(vm):
     vm_obj = {
         'config': {
             'name': config.name,
-            'vmPath': config.vmPathName
+            'vmPath': config.vmPathName,
+            'uuid': config.uuid,
+            'guestId': config.guestId,
+            'template': config.template
         },
         'guest': {
             'hostname': guest.hostName,
             'guestOS': guest.guestFullName,
             'ipAddress': guest.ipAddress,
+            'toolsStatus': guest.toolsStatus,
             'hwVersion': guest.hwVersion
         },
         'runtime': {

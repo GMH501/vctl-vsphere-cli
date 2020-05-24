@@ -44,6 +44,7 @@ def taskProgress(task, percentDone):
     time.sleep(0.5)
     sys.stdout.write('\b')
 
+
 def waiting(task):
     try:
         WaitForTask(task, onProgressUpdate=taskProgress)
