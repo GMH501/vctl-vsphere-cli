@@ -10,20 +10,32 @@ from vctl.helpers.utils import waiting
 from vctl.exceptions.exceptions import ContextNotFound
 
 
-
-
-@click.command()
+@click.group()
 @click.option('--context', '-c',
-            help='the context you want to use for run this command, default is current-context.',
+            help='The context to use for run the command, the default is <current-context>.',
             required=False)
 @click.option('--name', '-n',
-            help='virtual machine on which you want to create the snapshot.',
+            help='Virtual Machine on which to run the command.',
             required=True)
+@click.pass_context
+def vm(ctx, context, name):
+    ctx = click.Context
+    ctx.name = name
+    ctx.context = context
+
+
+@vm.command()
 @click.option('--state', '-s',
-            type=click.Choice(['on', 'off'], case_sensitive=True),
-            required=True)
-@click.option('--wait', '-w', is_flag=True)
-def vm(context, name, state, wait):
+              help='The desiderd state for the virtual machine.',
+              type=click.Choice(['on', 'off']),
+              required=True)
+@click.option('--wait', '-w', 
+              help='Wait for the task to complete.',
+              is_flag=True)
+@click.pass_context
+def power(ctx, state, wait):
+    name = ctx.name
+    context = ctx.context
     try:
         context = load_context(context=context)
         si = inject_token(context)
