@@ -1,9 +1,9 @@
 import sys
 
 import click
-from pyVmomi import vim
+from pyVmomi import vim, vmodl
 
-from vctl.helpers.helpers import load_context
+from vctl.helpers.helpers import load_context, jsonify
 from vctl.helpers.vmware import get_obj
 from vctl.helpers.auth import inject_token
 from vctl.helpers.utils import waiting
@@ -43,8 +43,7 @@ def power(ctx, state, wait):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
         if not hasattr(vm, '_moId'):
-            SystemExit('Specified vm not found.')
-            return
+            raise SystemExit('Specified vm not found.')
         try:
             if state == 'on':
                 task = vm.PowerOnVM_Task()
@@ -56,13 +55,36 @@ def power(ctx, state, wait):
             raise
 
     except ContextNotFound:
-        SystemExit('Context not found.')
+        raise SystemExit('Context not found.')
     except vim.fault.NotAuthenticated:
-        SystemExit('Context expired.')
-    except vim.fault.InvalidPowerState:
-        sys.stdout.write('\r ')
+        raise SystemExit('Context expired.')
+    except vmodl.MethodFault as e:
+       raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        SystemExit('Caught error:', e)
+        raise SystemExit('Caught error: ', e)
+
+
+def procs_obj(procs):
+    procs_list = []
+    try:
+        for proc in procs:
+            dicti = {
+                'name': proc.name,
+                'pid': proc.pid,
+                'owner': proc.owner,
+                'cmdLine': proc.cmdLine,
+                'exitCode': proc.exitCode 
+            }
+            if proc.startTime is not None:
+                dicti['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+            if proc.endTime is not None:
+                dicti['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+            else:
+                dicti['endTime'] = None
+            procs_list.append(dicti)
+        return procs_list
+    except: 
+        raise
 
 
 @vm.command()
@@ -82,27 +104,116 @@ def get_procs(ctx, username, password):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
         if not hasattr(vm, '_moId'):
-            SystemExit('Specified vm not found.')
+            raise SystemExit('Specified vm not found.')
         tools_status = vm.guest.toolsStatus
         if (tools_status == 'toolsNotInstalled' or
                 tools_status == 'toolsNotRunning'):
-            SystemExit(
-                "VMwareTools is either not running or not installed."
-                )
+            raise SystemExit(
+                'VMwareTools is either not running or not installed.')
         creds = vim.vm.guest.NamePasswordAuthentication(
             username=username, password=password)
         try:
             pm = content.guestOperationsManager.processManager
-            procs = pm.ListProcessesInGuest(vm, creds)
-            print(procs)
+            processes = pm.ListProcessesInGuest(vm, creds)
+            procs_list = procs_obj(processes)
+            jsonify(procs_list)
         except:
             raise
 
     except ContextNotFound:
-        SystemExit('Context not found.')
+        raise SystemExit('Context not found.')
     except vim.fault.NotAuthenticated:
-        SystemExit('Context expired.')
-    except vim.fault.InvalidPowerState:
-        sys.stdout.write('\r ')
+        raise SystemExit('Context expired.')
+    except vmodl.MethodFault as e:
+       raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        SystemExit('Caught error:', e)
+        print('Caught error: ', e)
+
+
+@vm.command()
+@click.pass_context
+def unregister(ctx):
+    name = ctx.name
+    context = ctx.context
+    try:
+        context = load_context(context=context)
+        si = inject_token(context)
+        content = si.content
+        vm = get_obj(content, [vim.VirtualMachine], name)
+        if not hasattr(vm, '_moId'):
+            raise SystemExit('Specified vm not found.')
+        try:
+            vm.UnregisterVM()
+        except:
+            raise
+
+    except ContextNotFound:
+        raise SystemExit('Context not found.')
+    except vim.fault.NotAuthenticated:
+        raise SystemExit('Context expired.')
+    except vmodl.MethodFault as e:
+       raise SystemExit('Caught vmodl fault: ' + e.msg)
+    except Exception as e:
+        raise SystemExit('Caught error: ', e)
+
+
+@vm.command()
+@click.option('--folder', '-f',
+              help='Context you want to use for run this command, default is current-context.',
+              required=False)
+@click.option('--host', '-h',
+              help='Virtual Machine on which to create the snapshot.',
+              required=True)
+@click.option('--path', '-path',
+              help='Name for the snapshot.',
+              required=True)
+@click.option('--pool', '-pool',
+              help='Name for the snapshot.',
+              required=False)
+@click.option('--template', '-t', 
+              help='Wait for the task to complete.',
+              is_flag=True)
+@click.option('--wait', '-w', 
+              help='Wait for the task to complete.',
+              is_flag=True)
+@click.pass_context
+def register(ctx, folder, host, path, pool, template, wait):
+    name = ctx.name
+    context = ctx.context
+    try:
+        context = load_context(context=context)
+        si = inject_token(context)
+        content = si.content
+        if folder is not None:
+            folder = get_obj(content, [vim.Folder], folder)
+        else:
+            folder = get_obj(content, [vim.Folder], 'vm')
+        if pool is not None:
+            pool = get_obj(content, [vim.ResourcePool], pool)
+        else:
+            pool = get_obj(content, [vim.ResourcePool], 'Resources')
+        host = get_obj(content, [vim.HostSystem], host)
+        if not hasattr(host, '_moId'):
+            raise SystemExit('Specified host not found.')
+        if template:
+            pool = None
+        if 'vmtx' in path:
+            template = True
+            pool = None
+        task = folder.RegisterVM_Task(
+                                      name=name,
+                                      path=path, 
+                                      pool=pool, 
+                                      asTemplate=template, 
+                                      host=host)
+        if wait:
+            waiting(task)
+
+    except ContextNotFound:
+        raise SystemExit('Context not found.')
+    except vim.fault.NotAuthenticated:
+        raise SystemExit('Context expired.')
+    except vmodl.MethodFault as e:
+       raise SystemExit('Caught vmodl fault: ' + e.msg)
+    except Exception as e:
+        raise SystemExit('Caught error: ', e)

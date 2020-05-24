@@ -43,6 +43,7 @@ def taskProgress(task, percentDone):
     sys.stdout.flush()
     time.sleep(0.5)
     sys.stdout.write('\b')
+    #  task.info.progress
 
 
 def waiting(task):

@@ -42,12 +42,12 @@ def create(vm, context, name, description, memory, quiesce, wait):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], vm)
         if not hasattr(vm, '_moId'):
-            SystemExit('Specified vm not found.')
+            raise SystemExit('Specified vm not found.')
         task = vm.CreateSnapshot(name, description, memory=memory, quiesce=quiesce)
         if wait:
             waiting(task)
     except Exception as e:
-        SystemExit('Cught error:', e)
+        raise SystemExit('Cught error: ' + e)
 
 
 @snapshot.command()
@@ -69,9 +69,9 @@ def list(vm, context):
             snap_obj = snapshot_obj(vm.snapshot)
             jsonify(snap_obj)
         else:
-            SystemExit('The selected vm does not have any snapshots.')
+            raise SystemExit('The selected vm does not have any snapshots.')
     except Exception as e:
-        SystemExit('Caught error:', e)
+        raise SystemExit('Caught error: ' + e)
 
 
 @snapshot.command()
@@ -128,7 +128,7 @@ def revert(vm, context, name, wait):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], vm)
         if not hasattr(vm, '_moId'):
-            SystemExit('Specified vm not found.')
+            raise SystemExit('Specified vm not found.')
         if vm.snapshot is not None:
             snapshots = vm.snapshot.rootSnapshotList
             snap = search_snapshot(snapshots, name)
@@ -138,8 +138,8 @@ def revert(vm, context, name, wait):
                     waiting(task)
                 return
             else:
-                SystemExit('Snapshot not found.')
+                raise SystemExit('Snapshot not found.')
         else:
-            SystemExit('The selected vm does not have any snapshots.')
+            raise SystemExit('The selected vm does not have any snapshots.')
     except Exception as e:
-        SystemExit('Caught error:', e)
+        raise SystemExit('Caught error: ' + e)
