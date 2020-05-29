@@ -8,6 +8,7 @@ from vctl.helpers.vmware import get_obj
 from vctl.helpers.auth import inject_token
 from vctl.helpers.utils import waiting
 from vctl.exceptions.exceptions import ContextNotFound
+from vctl.objects.snapshot import snapshot
 
 
 @click.group()
@@ -23,6 +24,9 @@ def vm(ctx, context, name):
     ctx.name = name
     ctx.context = context
     pass
+
+
+vm.add_command(snapshot)
 
 
 @vm.command()
@@ -61,14 +65,14 @@ def power(ctx, state, wait):
     except vmodl.MethodFault as e:
        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        raise SystemExit('Caught error: ', e)
+        print('Caught error:', e)
 
 
 def procs_obj(procs):
     procs_list = []
     try:
         for proc in procs:
-            dicti = {
+            obj = {
                 'name': proc.name,
                 'pid': proc.pid,
                 'owner': proc.owner,
@@ -76,12 +80,14 @@ def procs_obj(procs):
                 'exitCode': proc.exitCode 
             }
             if proc.startTime is not None:
-                dicti['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
-            if proc.endTime is not None:
-                dicti['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+                obj['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
             else:
-                dicti['endTime'] = None
-            procs_list.append(dicti)
+                obj['startTime'] = None
+            if proc.endTime is not None:
+                obj['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+            else:
+                obj['endTime'] = None
+            procs_list.append(obj)
         return procs_list
     except: 
         raise
@@ -127,7 +133,7 @@ def get_procs(ctx, username, password):
     except vmodl.MethodFault as e:
        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        print('Caught error: ', e)
+        print('Caught error:', e)
 
 
 @vm.command()
@@ -154,7 +160,7 @@ def unregister(ctx):
     except vmodl.MethodFault as e:
        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        raise SystemExit('Caught error: ', e)
+        print('Caught error:', e)
 
 
 @vm.command()
@@ -216,4 +222,4 @@ def register(ctx, folder, host, path, pool, template, wait):
     except vmodl.MethodFault as e:
        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
-        raise SystemExit('Caught error: ', e)
+        print('Caught error:', e)

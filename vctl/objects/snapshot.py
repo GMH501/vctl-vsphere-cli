@@ -18,12 +18,6 @@ def snapshot():
 
 
 @snapshot.command()
-@click.option('--context', '-c',
-              help='the context you want to use for run this command, default is current-context.',
-              required=False)
-@click.option('--vm', '-vm',
-              help='virtual machine on which you want to create the snapshot.',
-              required=True)
 @click.option('--name', '-n',
               help='virtual machine on which you want to create the snapshot.',
               required=True)
@@ -33,9 +27,12 @@ def snapshot():
 @click.option('--memory', '-m', is_flag=True)
 @click.option('--quiesce', '-q', is_flag=True)
 @click.option('--wait', '-w', is_flag=True)
-def create(vm, context, name, description, memory, quiesce, wait):
+@click.pass_context
+def create(ctx, name, description, memory, quiesce, wait):
     """
     """
+    vm = ctx.name
+    context = ctx.context
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -51,13 +48,9 @@ def create(vm, context, name, description, memory, quiesce, wait):
 
 
 @snapshot.command()
-@click.option('--context', '-c',
-              help='the context you want to use for run this command, default is current-context.',
-              required=False)
-@click.option('--vm', '-vm',
-              help='virtual machine on which you want to create the snapshot.',
-              required=True)
-def list(vm, context):
+def list(ctx):
+    vm = ctx.name
+    context = ctx.context
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -75,17 +68,13 @@ def list(vm, context):
 
 
 @snapshot.command()
-@click.option('--context', '-c',
-              help='the context you want to use for run this command, default is current-context.',
-              required=False)
-@click.option('--vm', '-vm',
-              help='virtual machine on which you want to create the snapshot.',
-              required=True)
 @click.option('--name', '-n',
               help='virtual machine on which you want to create the snapshot.',
               required=True)
 @click.option('--wait', '-w', is_flag=True)
-def remove(vm, context, name, wait):
+def remove(ctx, name, wait):
+    vm = ctx.name
+    context = ctx.context
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -109,19 +98,15 @@ def remove(vm, context, name, wait):
 
 
 @snapshot.command()
-@click.option('--context', '-c',
-              help='Context you want to use for run this command, default is current-context.',
-              required=False)
-@click.option('--vm', '-vm',
-              help='Virtual Machine on which to create the snapshot.',
-              required=True)
 @click.option('--name', '-n',
               help='Name for the snapshot.',
               required=True)
 @click.option('--wait', '-w', 
               help='Wait for the task to complete.',
               is_flag=True)
-def revert(vm, context, name, wait):
+def revert(ctx, name, wait):
+    vm = ctx.name
+    context = ctx.context
     try:
         context = load_context(context=context)
         si = inject_token(context)
