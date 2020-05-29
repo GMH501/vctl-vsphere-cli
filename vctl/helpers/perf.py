@@ -35,17 +35,17 @@ def BuildQuery(content, counter_name, instance, machine, time_measure, unit, int
         startTime = datetime.now() - timedelta(minutes=unit)
     elif time_measure == 'weeks':
         startTime = datetime.now() - timedelta(weeks=unit)
-    elif time_measure !='hours' or time_measure !='minutes' or time_measure !='weeks':
-        raise Exception ('Use "hours", "minutes", or "weeks" as a unit of time measurement.')
+    elif time_measure != 'hours' or time_measure != 'minutes' or time_measure != 'weeks':
+        raise Exception('Use "hours", "minutes", or "weeks" as a unit of time measurement.')
     endTime = datetime.now()
     try:
         perfManager = content.perfManager
         counterId = perf_id(content, counter_name)
-        metricId = vim.PerformanceManager.MetricId(counterId=counterId, instance=instance)  
-        query = vim.PerformanceManager.QuerySpec(intervalId=interval, 
-                                                 entity=machine, 
-                                                 metricId=[metricId], 
-                                                 startTime=startTime, 
+        metricId = vim.PerformanceManager.MetricId(counterId=counterId, instance=instance)
+        query = vim.PerformanceManager.QuerySpec(intervalId=interval,
+                                                 entity=machine,
+                                                 metricId=[metricId],
+                                                 startTime=startTime,
                                                  endTime=endTime)
         perfResults = perfManager.QueryPerf(querySpec=[query])
         if perfResults:

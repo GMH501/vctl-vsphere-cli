@@ -7,7 +7,6 @@ except:
     from pyvim.task import WaitForTask
 
 
-
 def progressMeter():
     while True:
         for cursor in '|/-\\':

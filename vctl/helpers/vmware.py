@@ -164,7 +164,7 @@ def snapshot_obj(snap):
 
 def search_snapshot(snapshot_list, name):
     """Search recursively for the snapshot with the specified name.
-    
+
     Args:
         snapshot_list (list): vm.snapshot.rootSnapshotList
         name (string) : snapshot name

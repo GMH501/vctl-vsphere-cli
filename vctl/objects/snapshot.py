@@ -101,7 +101,7 @@ def remove(ctx, name, wait):
 @click.option('--name', '-n',
               help='Name for the snapshot.',
               required=True)
-@click.option('--wait', '-w', 
+@click.option('--wait', '-w',
               help='Wait for the task to complete.',
               is_flag=True)
 def revert(ctx, name, wait):

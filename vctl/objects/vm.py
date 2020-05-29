@@ -34,7 +34,7 @@ vm.add_command(snapshot)
               help='The desiderd state for the virtual machine.',
               type=click.Choice(['on', 'off']),
               required=True)
-@click.option('--wait', '-w', 
+@click.option('--wait', '-w',
               help='Wait for the task to complete.',
               is_flag=True)
 @click.pass_context
@@ -63,7 +63,7 @@ def power(ctx, state, wait):
     except vim.fault.NotAuthenticated:
         raise SystemExit('Context expired.')
     except vmodl.MethodFault as e:
-       raise SystemExit('Caught vmodl fault: ' + e.msg)
+        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
 
@@ -77,7 +77,7 @@ def procs_obj(procs):
                 'pid': proc.pid,
                 'owner': proc.owner,
                 'cmdLine': proc.cmdLine,
-                'exitCode': proc.exitCode 
+                'exitCode': proc.exitCode
             }
             if proc.startTime is not None:
                 obj['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
@@ -89,7 +89,7 @@ def procs_obj(procs):
                 obj['endTime'] = None
             procs_list.append(obj)
         return procs_list
-    except: 
+    except:
         raise
 
 
@@ -97,7 +97,7 @@ def procs_obj(procs):
 @click.option('--username', '-user', '-u',
               help='The desiderd state for the virtual machine.',
               required=True)
-@click.option('--password', '-pwd', '-p', 
+@click.option('--password', '-pwd', '-p',
               help='Wait for the task to complete.',
               required=True)
 @click.pass_context
@@ -131,7 +131,7 @@ def get_procs(ctx, username, password):
     except vim.fault.NotAuthenticated:
         raise SystemExit('Context expired.')
     except vmodl.MethodFault as e:
-       raise SystemExit('Caught vmodl fault: ' + e.msg)
+        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
 
@@ -158,7 +158,7 @@ def unregister(ctx):
     except vim.fault.NotAuthenticated:
         raise SystemExit('Context expired.')
     except vmodl.MethodFault as e:
-       raise SystemExit('Caught vmodl fault: ' + e.msg)
+        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
 
@@ -176,10 +176,10 @@ def unregister(ctx):
 @click.option('--pool', '-pool',
               help='Name for the snapshot.',
               required=False)
-@click.option('--template', '-t', 
+@click.option('--template', '-t',
               help='Wait for the task to complete.',
               is_flag=True)
-@click.option('--wait', '-w', 
+@click.option('--wait', '-w',
               help='Wait for the task to complete.',
               is_flag=True)
 @click.pass_context
@@ -208,9 +208,9 @@ def register(ctx, folder, host, path, pool, template, wait):
             pool = None
         task = folder.RegisterVM_Task(
                                       name=name,
-                                      path=path, 
-                                      pool=pool, 
-                                      asTemplate=template, 
+                                      path=path,
+                                      pool=pool,
+                                      asTemplate=template,
                                       host=host)
         if wait:
             waiting(task)
@@ -220,6 +220,6 @@ def register(ctx, folder, host, path, pool, template, wait):
     except vim.fault.NotAuthenticated:
         raise SystemExit('Context expired.')
     except vmodl.MethodFault as e:
-       raise SystemExit('Caught vmodl fault: ' + e.msg)
+        raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
