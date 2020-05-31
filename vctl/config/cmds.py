@@ -52,7 +52,7 @@ def get_contexts():
                 print('{:<10}{:<30}{:<30}{:<30}{:<30}'.format('',
                                                               _context['name'],
                                                               _context['context']['username'],
-                                                             _context['context']['vcenter'],
+                                                              _context['context']['vcenter'],
                                                               _context['context']['apiversion']))
     except ConfigNotFound:
         print('Contexts not found, config file does not exists.')

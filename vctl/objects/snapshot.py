@@ -48,6 +48,7 @@ def create(ctx, name, description, memory, quiesce, wait):
 
 
 @snapshot.command()
+@click.pass_context
 def list(ctx):
     vm = ctx.name
     context = ctx.context
@@ -72,6 +73,7 @@ def list(ctx):
               help='virtual machine on which you want to create the snapshot.',
               required=True)
 @click.option('--wait', '-w', is_flag=True)
+@click.pass_context
 def remove(ctx, name, wait):
     vm = ctx.name
     context = ctx.context
@@ -104,6 +106,7 @@ def remove(ctx, name, wait):
 @click.option('--wait', '-w',
               help='Wait for the task to complete.',
               is_flag=True)
+@click.pass_context
 def revert(ctx, name, wait):
     vm = ctx.name
     context = ctx.context

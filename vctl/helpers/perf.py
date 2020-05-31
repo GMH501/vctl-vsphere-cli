@@ -24,7 +24,7 @@ def perf_id(content, counter_name):
         raise
 
 
-def BuildQuery(content, counter_name, instance, machine, time_measure, unit, interval):
+def BuildQuery(content, counter_names, machine, instance='', time_measure='minutes', unit=1, interval=20, sample=1):
     """
     se instance = "" prendiamo l'usage dell'host, mentre se vogliamo ad esempio la vcpu n°8 dell'host dobbiamo fare instance = "8"
     l'intervalId deve stare a 20 secondi
@@ -40,12 +40,12 @@ def BuildQuery(content, counter_name, instance, machine, time_measure, unit, int
     endTime = datetime.now()
     try:
         perfManager = content.perfManager
-        counterId = perf_id(content, counter_name)
-        metricId = vim.PerformanceManager.MetricId(counterId=counterId, instance=instance)
+        metricIds = [vim.PerformanceManager.MetricId(counterId=perf_id(content, counter_name)) for counter_name in counter_names]
         query = vim.PerformanceManager.QuerySpec(intervalId=interval,
                                                  entity=machine,
-                                                 metricId=[metricId],
+                                                 metricId=metricIds,
                                                  startTime=startTime,
+                                                 maxSample=sample,
                                                  endTime=endTime)
         perfResults = perfManager.QueryPerf(querySpec=[query])
         if perfResults:

@@ -92,19 +92,24 @@ def vms(context, host):
             vms = host.vm
         else:
             vms = get_obj(content, [vim.VirtualMachine])
-        print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format('NAME',
+        print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format('NAME',
+                                                      'HOSTNAME',
                                                       'MEMORY(MB)',
                                                       'CPU',
-                                                      'PARENT',
-                                                      'STATUS'))
+                                                      'IPADDRESS',
+                                                      'STATUS',
+                                                      'HOST'))
         for vm in vms:
             hardware = vm.config.hardware
             runtime = vm.summary.runtime
-            print('{:<30}{:<15}{:<15}{:<20}{:<30}'.format(vm.name,
+            guest = vm.summary.guest
+            print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format(vm.name,
+                                                          guest.hostName,
                                                           hardware.memoryMB,
                                                           hardware.numCPU,
-                                                          runtime.host.name,
-                                                          runtime.powerState))
+                                                          guest.ipAddress,
+                                                          runtime.powerState,
+                                                          runtime.host.name))
 
     except ContextNotFound:
         print('Context not found.')

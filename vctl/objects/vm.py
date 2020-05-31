@@ -4,7 +4,7 @@ import click
 from pyVmomi import vim, vmodl
 
 from vctl.helpers.helpers import load_context, jsonify
-from vctl.helpers.vmware import get_obj
+from vctl.helpers.vmware import get_obj, procs_obj
 from vctl.helpers.auth import inject_token
 from vctl.helpers.utils import waiting
 from vctl.exceptions.exceptions import ContextNotFound
@@ -66,31 +66,6 @@ def power(ctx, state, wait):
         raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
-
-
-def procs_obj(procs):
-    procs_list = []
-    try:
-        for proc in procs:
-            obj = {
-                'name': proc.name,
-                'pid': proc.pid,
-                'owner': proc.owner,
-                'cmdLine': proc.cmdLine,
-                'exitCode': proc.exitCode
-            }
-            if proc.startTime is not None:
-                obj['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
-            else:
-                obj['startTime'] = None
-            if proc.endTime is not None:
-                obj['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
-            else:
-                obj['endTime'] = None
-            procs_list.append(obj)
-        return procs_list
-    except:
-        raise
 
 
 @vm.command()
@@ -169,7 +144,7 @@ def unregister(ctx):
               required=False)
 @click.option('--host', '-h',
               help='Virtual Machine on which to create the snapshot.',
-              required=True)
+              required=False)
 @click.option('--path', '-path',
               help='Name for the snapshot.',
               required=True)

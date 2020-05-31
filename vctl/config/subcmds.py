@@ -1,4 +1,7 @@
+import re
+
 import click
+from pyVmomi import vim, vmodl
 
 from vctl.helpers.helpers import (
     load_config, dump_config, setup_config, create_context, load_context)
@@ -82,11 +85,22 @@ def test(context):
         context = load_context(context=context)
         try:
             si = inject_token(context)
-            print(si.sessionManager)
-        except Exception as e:
-            print('Caught error: ', e)
-    except (ConfigNotFound, ContextNotFound):
-        print('Context not found.')
+            token = context['token'].split('=')[1]
+            sId = re.findall(r'[0-9a-z][^\s]*[0-9a-z]', token)[0]
+            is_valid = si.content.sessionManager.SessionIsActive(sId, context['username'])
+            if is_valid:
+                raise SystemExit('Context is active.')
+        except:
+            raise
+
+    except ContextNotFound:
+        raise SystemExit('Context not found.')
+    except vim.fault.NotAuthenticated:
+        raise SystemExit('Context is expired.')
+    except vmodl.MethodFault as e:
+        raise SystemExit('Caught vmodl fault: ' + e.msg)
+    except Exception as e:
+        print('Caught error:', e)
 
 
 @click.command()

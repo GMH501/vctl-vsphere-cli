@@ -180,3 +180,28 @@ def search_snapshot(snapshot_list, name):
         if snap.childSnapshotList != []:
             output = search_snapshot(snap.childSnapshotList, name)
     return output
+
+
+def procs_obj(procs):
+    procs_list = []
+    try:
+        for proc in procs:
+            obj = {
+                'name': proc.name,
+                'pid': proc.pid,
+                'owner': proc.owner,
+                'cmdLine': proc.cmdLine,
+                'exitCode': proc.exitCode
+            }
+            if proc.startTime is not None:
+                obj['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+            else:
+                obj['startTime'] = None
+            if proc.endTime is not None:
+                obj['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
+            else:
+                obj['endTime'] = None
+            procs_list.append(obj)
+        return procs_list
+    except:
+        raise

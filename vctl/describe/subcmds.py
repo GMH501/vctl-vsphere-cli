@@ -25,28 +25,27 @@ def host(host, context):
             return
         host_obj = get_host_obj(host)
         jsonify(host_obj)
-        return
+        #return
         summary = host.summary
         stats = summary.quickStats
         hardware = host.hardware
-        cpuUsage = stats.overallCpuUsage
-        memoryCapacity = hardware.memorySize
-        memoryCapacityInMB = hardware.memorySize / 1024
-        memoryUsage = stats.overallMemoryUsage
-        freeMemoryPercentage = 100 - (
-            (float(memoryUsage) / memoryCapacityInMB) * 100
-        )
-        usageMemoryPercentage = (
-            (float(memoryUsage) / memoryCapacityInMB) * 100
-        )
-        print("--------------------------------------------------")
-        print("Host name: ", host.name)
-        # dump(host)
-        print("Host CPU usage: ", cpuUsage)
-        print("Host memory usage: ", memoryUsage / 1024, "GiB")
-        print("Free memory percentage: " + str(freeMemoryPercentage) + "%")
-        print("Usage memory percentage: " + str(usageMemoryPercentage) + "%")
-        print("--------------------------------------------------")
+        print(summary)
+        # cpuUsage = stats.overallCpuUsage
+        # memoryCapacityInMB = hardware.memorySize / 1024
+        # memoryUsage = stats.overallMemoryUsage
+        # freeMemoryPercentage = 100 - (
+        #     (float(memoryUsage) / memoryCapacityInMB) * 100
+        # )
+        # usageMemoryPercentage = (
+        #     (float(memoryUsage) / memoryCapacityInMB) * 100
+        # )
+        # print("--------------------------------------------------")
+        # print("Host name: ", host.name)
+        # # dump(host)
+        # print("Host CPU usage (MHz): ", cpuUsage)
+        # print("Host memory usage (GiB): ", round(memoryUsage / 1024, 2))
+        # print('Usage memory percentage: {}'.format(usageMemoryPercentage))
+        # print("--------------------------------------------------")
     except ContextNotFound:
         print('Context not found.')
     except vim.fault.NotAuthenticated:
