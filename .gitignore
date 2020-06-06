@@ -10,6 +10,7 @@ instance/
 .coverage
 htmlcov/
 docs/
+demo/
 
 dist/
 build/

@@ -92,24 +92,28 @@ def vms(context, host):
             vms = host.vm
         else:
             vms = get_obj(content, [vim.VirtualMachine])
-        print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format('NAME',
-                                                      'HOSTNAME',
-                                                      'MEMORY(MB)',
-                                                      'CPU',
-                                                      'IPADDRESS',
-                                                      'STATUS',
-                                                      'HOST'))
+        print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format(
+                                                    'NAME',
+                                                    'HOSTNAME',
+                                                    'MEMORY(MB)',
+                                                    'CPU',
+                                                    'IPADDRESS',
+                                                    'STATUS',
+                                                    'HOST'
+                                                    ))
         for vm in vms:
             hardware = vm.config.hardware
             runtime = vm.summary.runtime
             guest = vm.summary.guest
-            print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format(vm.name,
-                                                          guest.hostName,
-                                                          hardware.memoryMB,
-                                                          hardware.numCPU,
-                                                          guest.ipAddress,
-                                                          runtime.powerState,
-                                                          runtime.host.name))
+            print('{:<20}{:<30}{:<15}{:<10}{:<15}{:<15}{:<30}'.format(
+                                                        str(vm.name),
+                                                        str(guest.hostName),
+                                                        str(hardware.memoryMB),
+                                                        str(hardware.numCPU),
+                                                        str(guest.ipAddress),
+                                                        str(runtime.powerState),
+                                                        str(runtime.host.name)
+                                                        ))
 
     except ContextNotFound:
         print('Context not found.')

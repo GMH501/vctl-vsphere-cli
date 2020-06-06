@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import click
@@ -56,6 +57,7 @@ def get_contexts():
                                                               _context['context']['apiversion']))
     except ConfigNotFound:
         print('Contexts not found, config file does not exists.')
+        sys.exit(-1)
 
 
 @config.command()
@@ -71,5 +73,7 @@ def view():
             print(config, end='')
     except FileNotFoundError:
         print('Config file does not exists yet, creating a new context will automatically create it.')
+        sys.exit(2)
     except Exception as e:
         print("Caught error: ", e)
+        sys.exit(-1)
