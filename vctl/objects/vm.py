@@ -9,6 +9,7 @@ from vctl.helpers.auth import inject_token
 from vctl.helpers.utils import waiting
 from vctl.exceptions.exceptions import ContextNotFound
 from vctl.objects.snapshot import snapshot
+from vctl.objects.logs import logs
 
 
 @click.group()
@@ -27,6 +28,7 @@ def vm(ctx, context, name):
 
 
 vm.add_command(snapshot)
+vm.add_command(logs)
 
 
 @vm.command()
@@ -144,7 +146,7 @@ def unregister(ctx):
               required=False)
 @click.option('--host', '-h',
               help='Virtual Machine on which to create the snapshot.',
-              required=False)
+              required=True)
 @click.option('--path', '-path',
               help='Name for the snapshot.',
               required=True)
@@ -198,3 +200,42 @@ def register(ctx, folder, host, path, pool, template, wait):
         raise SystemExit('Caught vmodl fault: ' + e.msg)
     except Exception as e:
         print('Caught error:', e)
+
+
+###
+import ssl
+import sys
+import time
+import OpenSSL
+import webbrowser
+###
+
+@vm.command()
+@click.pass_context
+def open_console(ctx):
+    name = ctx.name
+    context = ctx.context
+    try:
+        context = load_context(context=context)
+        si = inject_token(context)
+        content = si.content
+        vm = get_obj(content, [vim.VirtualMachine], name)
+        if not isinstance(vm, vim.VirtualMachine):
+            raise SystemExit('Specified vm not found.')
+        vm_moid = vm._moId
+        instanceUuid = si.content.about.instanceUuid
+        session_manager = content.sessionManager
+        session = session_manager.AcquireCloneTicket()
+        vc_cert = ssl.get_server_certificate((context['vcenter'], 443))
+        vc_pem = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,
+                                                 vc_cert)
+        vc_fingerprint = vc_pem.digest('sha1')
+        url = "http://" + context['vcenter'] + "/ui/webconsole.html?vmId=" \
+              + str(vm_moid) + "&vmName=" + name + "&serverGuid=" + instanceUuid + "&host=" + context['vcenter'] \
+              + "&sessionTicket=" + session + "&thumbprint=" + vc_fingerprint.decode('UTF-8')
+        webbrowser.open(url, new=2)
+        time.sleep(5)
+    except:
+        raise
+
+

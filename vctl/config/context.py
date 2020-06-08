@@ -15,7 +15,15 @@ except:
     from pyvim.connect import SmartConnect
 
 
-@click.command()
+@click.group()
+def context():
+    """
+    Context related subcommands.
+    """
+    pass
+
+
+@context.command()
 @click.option('--vcenter', '-v',
               help='vCenter you want to conntect to.',
               required=True)
@@ -51,7 +59,7 @@ def create(vcenter, username, password):
         print('Caught exception: ', e)
 
 
-@click.command()
+@context.command()
 @click.argument('current', nargs=1)
 @click.argument('new', nargs=1)
 def rename(current, new):
@@ -76,7 +84,7 @@ def rename(current, new):
     return
 
 
-@click.command()
+@context.command()
 @click.option('--context', '-c',
               help='The context you want to test.',
               required=False)
@@ -87,7 +95,10 @@ def test(context):
             si = inject_token(context)
             token = context['token'].split('=')[1]
             sId = re.findall(r'[0-9a-z][^\s]*[0-9a-z]', token)[0]
+            print(sId)
             is_valid = si.content.sessionManager.SessionIsActive(sId, context['username'])
+            print(is_valid)
+            print(si.content)
             if is_valid:
                 raise SystemExit('Context is active.')
         except:
@@ -103,7 +114,7 @@ def test(context):
         print('Caught error:', e)
 
 
-@click.command()
+@context.command()
 @click.option('--context', '-c',
               help='The context you want to close.',
               required=False)
@@ -125,7 +136,7 @@ def close(context):
         print('Context not found.')
 
 
-@click.command()
+@context.command()
 @click.option('--context', '-c',
               help='The context you want to remove.',
               required=False)
@@ -150,7 +161,7 @@ def remove(context):
         print('Context not found.')
 
 
-@click.command()
+@context.command()
 @click.argument('context', nargs=1)
 def use(context):
     """Set the current-context.

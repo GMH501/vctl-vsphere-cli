@@ -1,16 +1,16 @@
 import sys
-import requests
 import urllib3
 import re
 
 import click
-from bs4 import BeautifulSoup
 from pyVmomi import vim, vmodl
+import requests
 
-from vctl.helpers.helpers import load_context, jsonify
+from vctl.helpers.helpers import load_context, scrape
 from vctl.helpers.vmware import get_obj
 from vctl.helpers.auth import inject_token
 from vctl.exceptions.exceptions import ContextNotFound
+
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -32,7 +32,7 @@ def datastore(ctx, context, name):
 
 def get_http_cookie(token):
     cookie_name = token.split("=", 1)[0]
-    regex = r'(["|\']([a-z0-9]+-)+[a-z0-9]+["|\']);.*Path=([^\s]*);'
+    regex = r'(["|\']([^\s]+)["|\']);.*Path=([^\s]*);'
     find = re.findall(regex, token)[0]
     cookie_value, cookie_path = find[0], find[2]
     cookie_text = " " + cookie_value + "; $Path=" + cookie_path
@@ -106,7 +106,6 @@ def upload(ctx, datacenter, remote_file, local_file):
               help='Context you want to use for run this command, default is current-context.',
               required=False,
               default='/')
-@click.option('--json', is_flag=True)
 @click.pass_context
 def browse(ctx, datacenter, folder, json):
     ds_name = ctx.name
@@ -140,22 +139,7 @@ def browse(ctx, datacenter, folder, json):
         if not r:
             print('Caught error: {} {}'.format(r.status_code, r.reason))
             raise SystemExit(-1)
-        # print(r.headers)
-        # return
-        html = r.text.split('\n')
-        valid_lines = [line for line in html if ds_name in line]
-        html_data = "".join(valid_lines)
-        table_data = [[cell.text for cell in row("td")]
-                        for row in BeautifulSoup(html_data, features="html.parser")("tr")]
-        keys = ['name', 'lastModified', 'size']
-        output = []
-        for values in table_data:
-            struct = dict(zip(keys, values))
-            output.append(struct)
-        if "Parent" in output[0]['name']:
-            output.pop(0)
-        if json:
-            jsonify(output)
+        output = scrape(r.text, search=ds_name)
         print('{:<40}{:<30}{:<20}'.format('NAME',
                                           'LAST-MODIFIED',
                                           'SIZE'))

@@ -8,6 +8,7 @@ import string
 from pathlib import Path
 
 import yaml
+from bs4 import BeautifulSoup
 
 from vctl.helpers.auth import decode_token
 from vctl.exceptions.exceptions import ContextNotFound, ConfigNotFound
@@ -112,3 +113,19 @@ def jsonify(obj, sort=False):
         json.dump(obj, sys.stdout, indent=4, sort_keys=sort)
     except Exception as e:
         raise e
+
+
+def scrape(html, search=''):
+    output = []
+    keys = ['name', 'lastModified', 'size']
+    html = html.split('\n')
+    valid_lines = [line for line in html if search in line]
+    html_data = "".join(valid_lines)
+    table_data = [[cell.text for cell in row("td")]
+                    for row in BeautifulSoup(html_data, features="html.parser")("tr")]
+    for values in table_data:
+        struct = dict(zip(keys, values))
+        output.append(struct)
+    if "Parent" in output[0]['name']:
+        output.pop(0)
+    return output
