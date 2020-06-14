@@ -23,12 +23,8 @@ def sizeof_fmt(num):
 def print_datastore_info(ds_obj):
     summary = ds_obj.summary
     ds_capacity = summary.capacity
-    ds_freespace = summary.freeSpace
-    ds_uncommitted = summary.uncommitted if summary.uncommitted else 0
     ds_provisioned = ds_capacity - ds_freespace + ds_uncommitted
-    ds_overp = ds_provisioned - ds_capacity
-    ds_overp_pct = (ds_overp * 100) / ds_capacity \
-        if ds_capacity else 0
+    ds_freespace = summary.freeSpace
     print("")
     print("Name                  : {}".format(summary.name))
     print("URL                   : {}".format(summary.url))
@@ -36,10 +32,6 @@ def print_datastore_info(ds_obj):
     print("Free Space            : {} GB".format(sizeof_fmt(ds_freespace)))
     print("Uncommitted           : {} GB".format(sizeof_fmt(ds_uncommitted)))
     print("Provisioned           : {} GB".format(sizeof_fmt(ds_provisioned)))
-    if ds_overp > 0:
-        print("Over-provisioned      : {} GB / {} %".format(
-            sizeof_fmt(ds_overp),
-            ds_overp_pct))
     print("Hosts                 : {}".format(len(ds_obj.host)))
     print("Virtual Machines      : {}".format(len(ds_obj.vm)))
 
@@ -53,13 +45,35 @@ def datastores(context):
         context = load_context(context=context)
         si = inject_token(context)
         content = si.content
-        ds_obj_list = get_obj(content, [vim.Datastore])
-        for ds in ds_obj_list:
-            print_datastore_info(ds)
+        datastores = get_obj(content, [vim.Datastore])
+        #for ds in datastores:
+        #    print_datastore_info(ds)
+        max_len = str(len(max([ds.name for ds in datastores], key=len)) + 4)
+        header_format = '{:<' + max_len + '}{:<17}{:<19}{:<19}{}'
+        output_format = '{:<' + max_len + '}{:<17.2f}{:<19.2f}{:<19.2f}{}'
+        print(header_format.format(
+                                'NAME',
+                                'CAPACITY(GB)',
+                                'PROVSIONED(GB)', # TODO Aggiungere USED
+                                'FREE SPACE(GB)',
+                                'URL'
+                                )
+        )
+        for ds in datastores:
+            summary = ds.summary
+            print(output_format.format(
+                                    summary.name,
+                                    summary.capacity / 1024 / 1024 / 1024,
+                                    (summary.capacity - summary.freeSpace + summary.uncommitted) / 1024 / 1024 / 1024,
+                                    summary.freeSpace / 1024 / 1024 / 1024,
+                                    summary.url
+                                    )
+            )
 
     except ContextNotFound:
         print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        print('Caught error:', e)
+        #print('Caught error:', e)
+        raise
