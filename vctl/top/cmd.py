@@ -18,8 +18,7 @@ def top():
 @top.command()
 @click.argument('name', nargs=1)
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
+              help='The context to use for run the command, the default is <current-context>.',
               required=False)
 def vm(name, context):
     try:
@@ -27,8 +26,9 @@ def vm(name, context):
         si = inject_token(context)
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
-        if vm is None:
-            raise SystemExit('Virtual Machine not found.')
+        if not isinstance(vm, vim.VairtualMachine):
+            print('Virtual machine {} not found.'.format(name))
+            raise SystemExit(1)
         perfResults = BuildQuery(
                             content,
                             [
@@ -39,7 +39,8 @@ def vm(name, context):
                             ], 
                             vm)
         if not perfResults:
-            raise SystemExit('Cannot fetch performance metrics.')
+            print('Cannot fetch performance metrics.')
+            raise SystemExit(-1)
         results = [
             perfResults[0].value[0].value[0] / 100,
             perfResults[0].value[1].value[0],
@@ -60,14 +61,17 @@ def vm(name, context):
                                         results[3]))
         
     except ContextNotFound:
-        raise SystemExit('Context not found.')
+        print('Context not found.')
+        raise SystemExit()
     except vim.fault.NotAuthenticated:
-        raise SystemExit('Context expired.')
+        print('Context expired.')
+        raise SystemExit(1)
     except vmodl.MethodFault as e:
-        raise SystemExit('Caught vmodl fault: ' + e.msg)
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        #print('Caught error:', e)
-        raise e
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @top.command()
@@ -82,8 +86,9 @@ def host(name, context):
         si = inject_token(context)
         content = si.content
         host = get_obj(content, [vim.HostSystem], name)
-        if host is None:
-            raise SystemExit('Host not found.')
+        if not isinstance(host, vim.HostSystem):
+            print('Host {} not found.'.format(name))
+            raise SystemExit(1)
         perfResults = BuildQuery(
                             content,
                             [
@@ -95,7 +100,8 @@ def host(name, context):
                             ], 
                             host)
         if not perfResults:
-            raise SystemExit('Cannot fetch performance metrics.')
+            print('Cannot fetch performance metrics.')
+            raise SystemExit(-1)
         results = [
             perfResults[0].value[0].value[0] / 100,
             perfResults[0].value[1].value[0], 
@@ -104,25 +110,29 @@ def host(name, context):
             perfResults[0].value[4].value[0]
         ]
         print('{:<30}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
-                                                'HOST',
-                                                'CPU USAGE(%)',
-                                                'CPU USAGE(MHz)',
-                                                'MEM USAGE(%)',
-                                                'MEM ACTIVE(GiB)',
-                                                'NET USAGE(KBps)'))
+            'HOST',
+            'CPU USAGE(%)',
+            'CPU USAGE(MHz)',
+            'MEM USAGE(%)',
+            'MEM ACTIVE(GiB)',
+            'NET USAGE(KBps)'))
         print('{:<30}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
-                                                host.name,
-                                                results[0],
-                                                results[1],
-                                                results[2],
-                                                results[3],
-                                                results[4]))
+            host.name,
+            results[0],
+            results[1],
+            results[2],
+            results[3],
+            results[4]))
         
     except ContextNotFound:
-        raise SystemExit('Context not found.')
+        print('Context not found.')
+        raise SystemExit()
     except vim.fault.NotAuthenticated:
-        raise SystemExit('Context expired.')
+        print('Context expired.')
+        raise SystemExit(1)
     except vmodl.MethodFault as e:
-        raise SystemExit('Caught vmodl fault: ' + e.msg)
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        print('Caught error:', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)

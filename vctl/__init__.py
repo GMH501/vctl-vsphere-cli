@@ -1,11 +1,11 @@
 import click
 
-from vctl.config.cmds import config
-from vctl.get.cmds import get
-from vctl.describe.cmds import describe
+from vctl.config.cmd import config
+from vctl.get.cmd import get
+from vctl.describe.cmd import describe
 from vctl.objects.vm import vm
 from vctl.objects.datastore import datastore
-from vctl.top.cmds import top
+from vctl.top.cmd import top
 
 
 @click.group()

@@ -50,13 +50,13 @@ def _mkticket( content, url, method='httpGet'):
 
 @datastore.command()
 @click.option('--datacenter', '-d',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Name of the datacenter on which the datastore is inventoried.',
               required=True)
 @click.option('--remote-file', '-r',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Path of the file to create on the datastore.',
               required=True)
 @click.option('--local-file', '-l',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Path of the local file to upload on the datastore.',
               required=True)
 @click.pass_context
 def upload(ctx, datacenter, remote_file, local_file):
@@ -69,7 +69,7 @@ def upload(ctx, datacenter, remote_file, local_file):
         dc = get_obj(content, [vim.Datacenter], datacenter)
         if not dc:
             print('Datacenter not found.')
-            raise SystemExit(-1)
+            #raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
             print('Datastore not found.')
@@ -78,8 +78,7 @@ def upload(ctx, datacenter, remote_file, local_file):
             remote_file = "/" + remote_file
         resource = "/folder" + remote_file
         http_url = "https://" + context['vcenter'] + ":443" + resource
-        params = {"dsName": datastore.info.name,
-                  "dcPath": dc.name}
+        params = {"dsName": datastore.info.name}
         http_cookie = get_http_cookie(si._stub.cookie)
         headers = {'Content-Type': 'application/octet-stream'}
         with open(local_file, "rb") as f:
@@ -100,14 +99,14 @@ def upload(ctx, datacenter, remote_file, local_file):
 
 @datastore.command()
 @click.option('--datacenter', '-d',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Name of the datacenter on which the datastore is inventoried.',
               required=True)
 @click.option('--folder', '-f',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Name of the folder to browse on the datastore.',
               required=False,
               default='/')
 @click.pass_context
-def browse(ctx, datacenter, folder, json):
+def browse(ctx, datacenter, folder):
     ds_name = ctx.name
     context = ctx.context
     try:
@@ -117,7 +116,7 @@ def browse(ctx, datacenter, folder, json):
         dc = get_obj(content, [vim.Datacenter], datacenter)
         if not dc:
             print('Datacenter not found.')
-            raise SystemExit(-1)
+            #raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
             print('Datastore not found.')
@@ -126,8 +125,7 @@ def browse(ctx, datacenter, folder, json):
             folder = "/" + folder
         resource = "/folder" + folder
         http_url = "https://" + context['vcenter'] + ":443" + resource
-        params = {"dsName": datastore.info.name,
-                  "dcPath": dc.name}
+        params = {"dsName": datastore.info.name}
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         r = requests.get(
@@ -158,10 +156,10 @@ def browse(ctx, datacenter, folder, json):
 
 @datastore.command()
 @click.option('--datacenter', '-d',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Name of the datacenter on which the datastore is inventoried.',
               required=True)
 @click.option('--file', '-f',
-              help='File name you want to remove from the datastore.',
+              help='Path of the file to remove from the datastore.',
               required=False,
               default='/')
 @click.pass_context
@@ -205,13 +203,13 @@ def delete(ctx, datacenter, file):
 
 @datastore.command()
 @click.option('--datacenter', '-d',
-              help='Context you want to use for run this command, default is current-context.',
+              help='Name of the datacenter on which the datastore is inventoried.',
               required=True)
-@click.option('--file', '-f',
-              help='Context you want to use for run this command, default is current-context.',
+@click.option('--remote-file', '-r',
+              help='Path of the remote file on datastore to download.',
               required=True)
-@click.option('--local', '-l',
-              help='Context you want to use for run this command, default is current-context.',
+@click.option('--local-file', '-l',
+              help='Path of the local file to create.',
               required=True)             
 @click.pass_context
 def download(ctx, datacenter, file, local):
@@ -247,7 +245,6 @@ def download(ctx, datacenter, file, local):
                             stream=True
                             )
             total_length = r.headers.get('content-length')
-            #print(r.headers)
             total_length = int(total_length)
             dl = 0
             for chunk in r.iter_content(chunk_size=4096): 
@@ -265,4 +262,4 @@ def download(ctx, datacenter, file, local):
 
     except vmodl.MethodFault as e:
         print("Caught vmodl fault : " + e.msg)
-        sys.exit(-1)
+        raise SystemExit(-1)

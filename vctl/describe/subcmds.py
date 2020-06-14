@@ -11,8 +11,7 @@ from vctl.exceptions.exceptions import ContextNotFound
 @click.command()
 @click.argument('host', nargs=1)
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
+              help='the context you want to use for run this command, default is current-context.',
               required=False)
 def host(host, context):
     try:
@@ -25,7 +24,7 @@ def host(host, context):
             return
         host_obj = get_host_obj(host)
         jsonify(host_obj)
-        #return
+        return
         summary = host.summary
         stats = summary.quickStats
         hardware = host.hardware
@@ -57,8 +56,7 @@ def host(host, context):
 @click.command()
 @click.argument('vm', nargs=1)
 @click.option('--context', '-c',
-              help='the context you want to use for run this command, \
-                    default is current-context.',
+              help='the context you want to use for run this command, default is current-context.',
               required=False)
 def vm(vm, context):
     try:

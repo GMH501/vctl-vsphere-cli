@@ -27,11 +27,11 @@ def random_string(n=5):
     return ''.join(random.choice(letters) for i in range(n))
 
 
-def load_config():
+def load_config(raise_exception=False):
     """
     Get vconfig file and transform it to dictionary.\n
     @return: dictionary.\n
-    @except: raise ConfigNotFound.
+    @except: raise SystemExit.
     """
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'config')
@@ -39,22 +39,23 @@ def load_config():
         with open(config_path, 'r') as config_file:
             return yaml.safe_load(config_file)
     except FileNotFoundError:
-        raise ConfigNotFound
+        if raise_exception:
+            raise FileNotFoundError
+        else:
+            print('Config file not found in default path ~/.vctl/config.')
+            raise SystemExit(1)
 
 
 def setup_config():
     """
-    Setup basic vconfig file in default path.
+    Setup base vconfig file in default path  ~/.vctl/config.
     """
     home = str(Path.home())
     config_path = os.path.join(home, '.vctl', 'config')
     base_config = {'contexts': [], 'current-context': ''}
-    try:
-        os.makedirs(os.path.dirname(config_path), exist_ok=True)
-        with open(config_path, 'w') as opened_file:
-            yaml.dump(base_config, opened_file)
-    except Exception as e:
-        raise e
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
+    with open(config_path, 'w') as opened_file:
+        yaml.dump(base_config, opened_file)
 
 
 def dump_config(config):
@@ -67,39 +68,46 @@ def dump_config(config):
         yaml.dump(config, opened_file)
 
 
-def create_context(si, vcenter, username):
+def create_context(si, vcenter, username, password=None):
+    """Create the context.
+    """
     api_version = si._stub.versionId
     apiversion = re.findall('.*/(.*)"', api_version)[0]
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = '{}#{}'.format(vcenter, random_string())
-    return {'context': {'vcenter': vcenter,
+    context = {'context': {'vcenter': vcenter,
                         'version': si.content.about.fullName,
                         'apiversion': apiversion,
                         'username': username,
                         'token': token},
-            'name': context_name}
+                'name': context_name}
+    if password:
+        context['context']['password'] = bytes(password, encoding='utf-8')
+    return context
 
 
 def load_context(context=None):
-    """
-    Get the current context, dictionary styled.\n
-    @return: dictionary.\n
+    """Get the current context, dictionary styled.\n
+    Args:
+        context 
     @except: raise ContextNotFound.
     """
     config = load_config()
-    if context:
-        for _context in config['contexts']:
-            if _context['name'] == context:
-                context = _context['context']
-                context['token'] = decode_token(context['token'])
-                return context
+    decoded_context = None
+    if context is None:
+        context = config['current-context']
     for _context in config['contexts']:
-        if _context['name'] == config['current-context']:
+        if _context['name'] == context:
             context = _context['context']
             context['token'] = decode_token(context['token'])
-            return context
-    raise ContextNotFound('Context not found in config file.')
+            if 'password' in context:
+                context['password'] = context['password'].decode('utf-8')
+            decoded_context = context
+            return decoded_context
+    if decoded_context is None:
+        print('Context not found in config file.')
+        raise SystemExit(1)
 
 
 def jsonify(obj, sort=False):
@@ -109,10 +117,8 @@ def jsonify(obj, sort=False):
         obj (dict): the selected object to dumps.
         sort (bool): sort the keys in the obj dict.
     """
-    try:
-        json.dump(obj, sys.stdout, indent=4, sort_keys=sort)
-    except Exception as e:
-        raise e
+    json.dump(obj, sys.stdout, indent=4, sort_keys=sort)
+
 
 
 def scrape(html, search=''):

@@ -27,9 +27,5 @@ def taskProgress(task, percentDone):
 
 
 def waiting(task):
-    try:
-        WaitForTask(task, onProgressUpdate=taskProgress)
-        sys.stdout.write('\r ')
-        return
-    except:
-        raise
+    WaitForTask(task, onProgressUpdate=taskProgress)
+    sys.stdout.write('\r ')

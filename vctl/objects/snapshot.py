@@ -38,13 +38,22 @@ def create(ctx, name, description, memory, quiesce, wait):
         si = inject_token(context)
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], vm)
-        if not hasattr(vm, '_moId'):
-            raise SystemExit('Specified vm not found.')
+        if not isinstance(vm, vim.VirtualMachine):
+            print('Specified vm not found.')
+            raise SystemExit(1)
         task = vm.CreateSnapshot(name, description, memory=memory, quiesce=quiesce)
         if wait:
             waiting(task)
+
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        raise SystemExit('Cught error: ' + e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @snapshot.command()
@@ -64,8 +73,16 @@ def list(ctx):
             jsonify(snap_obj)
         else:
             raise SystemExit('The selected vm does not have any snapshots.')
+
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        raise SystemExit('Caught error: ' + e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @snapshot.command()
@@ -95,8 +112,16 @@ def remove(ctx, name, wait):
                 SystemExit('Snapshot not found.')
         else:
             SystemExit('The selected vm does not have any snapshots.')
+
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        SystemExit('Caught error:', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @snapshot.command()
@@ -129,5 +154,13 @@ def revert(ctx, name, wait):
                 raise SystemExit('Snapshot not found.')
         else:
             raise SystemExit('The selected vm does not have any snapshots.')
+
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        raise SystemExit('Caught error: ' + e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)

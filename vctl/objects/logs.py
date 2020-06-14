@@ -48,23 +48,30 @@ def show(ctx, file):
             file = file[1:]
         resource = resource + file
         http_url = "https://" + context['vcenter'] + ":443" + resource
-        params = {"dsName": datastore_name,
-                  "dcPath": dc.name}
+        params = {"dsName": datastore_name, "dcPath": dc.name}
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         r = requests.get(
-                        http_url,
-                        params=params,
-                        headers=headers,
-                        cookies=http_cookie,
-                        verify=False,
-                        stream=True
-                        )
+            http_url,
+            params=params,
+            headers=headers,
+            cookies=http_cookie,
+            verify=False,
+            stream=True)
         print(r.text)
-    except vmodl.MethodFault as e:
-        print("Caught vmodl fault : " + e.msg)
-        sys.exit(-1)
 
+    except ContextNotFound:
+        print('Context not found.')
+        raise SystemExit(1)
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 @logs.command()
 @click.pass_context
