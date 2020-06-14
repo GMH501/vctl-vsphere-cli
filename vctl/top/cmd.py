@@ -109,14 +109,14 @@ def host(name, context):
             round(perfResults[0].value[3].value[0] / (1024 * 1024), 2),
             perfResults[0].value[4].value[0]
         ]
-        print('{:<30}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
+        print('{:<36.33}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
             'HOST',
             'CPU USAGE(%)',
             'CPU USAGE(MHz)',
             'MEM USAGE(%)',
             'MEM ACTIVE(GiB)',
             'NET USAGE(KBps)'))
-        print('{:<30}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
+        print('{:<36.33}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
             host.name,
             results[0],
             results[1],
