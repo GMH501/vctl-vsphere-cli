@@ -20,22 +20,23 @@ def hosts(context, cluster):
         si = inject_token(context)
         content = si.content
         if cluster:
-            cluster = get_obj(content, [vim.ClusterComputeResource], cluster)
-            if not hasattr(cluster, 'host'):
-                print('Invalid argument.')
-                return
-            hosts = cluster.host
+            cluster_resource = get_obj(content, [vim.ClusterComputeResource], cluster)
+            if not isinstance(cluster, vim.ClusterComputeResource):
+                print('Cluster {} not found.'.format(cluster))
+                raise SystemExit(1)
+            hosts = cluster_esource.host
         else:
             hosts = get_obj(content, [vim.HostSystem])
-            #  max_len = len(max([host.name for host in hosts], key=len))
-        print('{:<36}{:<15}{:<8}{:<8}{:<15}{:<10}{:<35}'.format(
-                                                    'NAME',
-                                                    'MEMORY(MB)',
-                                                    'CPU',
-                                                    'VMS',
-                                                    'DATASTORES',
-                                                    'VERSION',
-                                                    'PARENT'))
+        max_len = str(len(max([host.name for host in hosts], key=len)) + 4)
+        header_format = '{:<' + max_len + '}{:<15}{:<8}{:<8}{:<15}{:<12}{:<35}'
+        print(header_format.format(
+                                'NAME',
+                                'MEMORY(MB)',
+                                'CPU',
+                                'VMS',
+                                'DATASTORES',
+                                'VERSION',
+                                'PARENT'))
         for host in hosts:
             name = host.name
             memory_MB = round(host.hardware.memorySize / (1024 * 1024))
@@ -44,14 +45,14 @@ def hosts(context, cluster):
             num_ds = len(host.datastore)
             version = host.config.product.version
             parent = host.parent.name
-            print('{:<36.33}{:<15}{:<8}{:<8}{:<15}{:<10}{:<35}'.format(
-                                                        name,
-                                                        memory_MB,
-                                                        cores,
-                                                        num_vms,
-                                                        num_ds,
-                                                        version,
-                                                        parent))
+            print(header_format.format(
+                                    name,
+                                    memory_MB,
+                                    cores,
+                                    num_vms,
+                                    num_ds,
+                                    version,
+                                    parent))
 
     except ContextNotFound:
         print('Context not found.')

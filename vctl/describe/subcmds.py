@@ -9,48 +9,34 @@ from vctl.exceptions.exceptions import ContextNotFound
 
 
 @click.command()
-@click.argument('host', nargs=1)
+@click.argument('name', nargs=1)
 @click.option('--context', '-c',
               help='the context you want to use for run this command, default is current-context.',
               required=False)
-def host(host, context):
+def host(name, context):
     try:
         context = load_context(context=context)
         si = inject_token(context)
         content = si.content
-        host = get_obj(content, [vim.HostSystem], host)
-        if not hasattr(host, '_moId'):
-            print('Specified host not found.')
-            return
+        host = get_obj(content, [vim.HostSystem], name)
+        if not isinstance(host, vim.HostSystem):
+            print('Host {} not found.'.format(name))
+            raise SystemExit(1)
         host_obj = get_host_obj(host)
         jsonify(host_obj)
-        return
-        summary = host.summary
-        stats = summary.quickStats
-        hardware = host.hardware
-        print(summary)
-        # cpuUsage = stats.overallCpuUsage
-        # memoryCapacityInMB = hardware.memorySize / 1024
-        # memoryUsage = stats.overallMemoryUsage
-        # freeMemoryPercentage = 100 - (
-        #     (float(memoryUsage) / memoryCapacityInMB) * 100
-        # )
-        # usageMemoryPercentage = (
-        #     (float(memoryUsage) / memoryCapacityInMB) * 100
-        # )
-        # print("--------------------------------------------------")
-        # print("Host name: ", host.name)
-        # # dump(host)
-        # print("Host CPU usage (MHz): ", cpuUsage)
-        # print("Host memory usage (GiB): ", round(memoryUsage / 1024, 2))
-        # print('Usage memory percentage: {}'.format(usageMemoryPercentage))
-        # print("--------------------------------------------------")
+
     except ContextNotFound:
         print('Context not found.')
+        raise SystemExit(-1)
     except vim.fault.NotAuthenticated:
         print('Context expired.')
+        raise SystemExit(-1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(-1)
     except Exception as e:
-        print('Caught error:', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(-1)
 
 
 @click.command()
