@@ -30,13 +30,15 @@ def hosts(context, cluster):
         max_len = str(len(max([host.name for host in hosts], key=len)) + 4)
         header_format = '{:<' + max_len + '}{:<15}{:<8}{:<8}{:<15}{:<12}{:<35}'
         print(header_format.format(
-                                'NAME',
-                                'MEMORY(MB)',
-                                'CPU',
-                                'VMS',
-                                'DATASTORES',
-                                'VERSION',
-                                'PARENT'))
+            'NAME',
+            'MEMORY(MB)',
+            'CPU',
+            'VMS',
+            'DATASTORES',    ####### TODO ADD UPTIME
+            'VERSION',
+            'PARENT'
+            )
+        )
         for host in hosts:
             name = host.name
             memory_MB = round(host.hardware.memorySize / (1024 * 1024))
@@ -46,13 +48,15 @@ def hosts(context, cluster):
             version = host.config.product.version
             parent = host.parent.name
             print(header_format.format(
-                                    name,
-                                    memory_MB,
-                                    cores,
-                                    num_vms,
-                                    num_ds,
-                                    version,
-                                    parent))
+                name,
+                memory_MB,
+                cores,
+                num_vms,
+                num_ds,
+                version,
+                parent
+                )
+            )
 
     except ContextNotFound:
         print('Context not found.')

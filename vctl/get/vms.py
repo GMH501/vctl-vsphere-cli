@@ -30,31 +30,33 @@ def vms(context, host):
         max_hostname_len = str(len(max(vms_hostnames, key=len)) + 4)
         header_format = '{:<' + max_name_len + '}{:<' + max_hostname_len + '}{:<15}{:<8}{:<18}{:<15}{:<35}'
         print(header_format.format(
-                                'NAME',
-                                'HOSTNAME',
-                                'MEMORY(MB)',
-                                'CPU',
-                                'IPADDRESS',
-                                'STATUS',
-                                'HOST'
-                                ))
+            'NAME',
+            'HOSTNAME',
+            'MEMORY(MB)',
+            'CPU',
+            'IPADDRESS',
+            'STATUS',
+            'HOST'
+            )
+        )
         for vm in vms:
             hardware = vm.config.hardware
             runtime = vm.summary.runtime
             guest = vm.summary.guest
             print(header_format.format(
-                                    str(vm.name),
-                                    str(guest.hostName),
-                                    str(hardware.memoryMB),
-                                    str(hardware.numCPU),
-                                    str(guest.ipAddress),
-                                    str(runtime.powerState),
-                                    str(runtime.host.name)
-                                    ))
+                vm.name,
+                str(guest.hostName),
+                hardware.memoryMB,
+                hardware.numCPU,
+                str(guest.ipAddress),
+                runtime.powerState,
+                runtime.host.name
+                )
+            )
 
     except ContextNotFound:
         print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        print('Caughterror:', e)
+        print('Caught error:', e)

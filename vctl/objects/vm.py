@@ -20,8 +20,7 @@ from vctl.objects.snapshot import snapshot
 @click.option('--context', '-c',
               help='The context to use for run the command, the default is <current-context>.',
               required=False)
-@click.option('--name', '-n',
-              help='The name of the virtual machine on which to run the command.',
+@click.argument('name', nargs=1,
               required=True)
 @click.pass_context
 def vm(ctx, context, name):
@@ -76,6 +75,9 @@ def power(ctx, state, wait):
 
 
 @vm.command()
+@click.option('--json',
+              help='Json formatted output.',
+              is_flag=True)
 @click.option('--username', '-user', '-u',
               help='The desiderd state for the virtual machine.',
               required=True)
@@ -83,7 +85,7 @@ def power(ctx, state, wait):
               help='Wait for the task to complete.',
               required=True)
 @click.pass_context
-def get_procs(ctx, username, password):
+def get_procs(ctx, json, username, password):
     name = ctx.name
     context = ctx.context
     try:
@@ -104,7 +106,25 @@ def get_procs(ctx, username, password):
         pm = content.guestOperationsManager.processManager
         processes = pm.ListProcessesInGuest(vm, creds)
         procs_list = procs_obj(processes)
-        jsonify(procs_list)
+        if json:
+            jsonify(procs_list)
+        else:
+            name_len = str(len(max([proc['name'] for proc in procs_list], key=len)) + 4)
+            owner_len = str(len(max([proc['owner'] for proc in procs_list], key=len)) + 4)
+            header_format = '{:<' + name_len + '}{:<8}{:<13}{:<' + owner_len + '}{:<35}'
+            output_format = '{name:<' + name_len + '}{pid:<8}{exitCode:<13}{owner:<' + owner_len + '}{cmdLine:<75}'
+            print(header_format.format(
+                'NAME',
+                'PID',
+                'EXITCODE',
+                'OWNER',
+                'CMD'
+                )
+            )
+            for proc in procs_list:
+                if proc['exitCode'] == None:
+                    proc['exitCode'] = 'None'
+                print(output_format.format(**proc))
 
     except ContextNotFound:
         print('Context not found.')
@@ -244,7 +264,7 @@ def open_console(ctx):
         vc_fingerprint = vc_pem.digest('sha1')
         url = "http://" + context['vcenter'] + "/ui/webconsole.html?vmId=" \
             + vm_moid + "&vmName=" + name + "&serverGuid=" + instanceUuid + "&host=" + context['vcenter'] \
-            + "&sessionTicket=" + session + "&thumbprint=" + vc_fingerprint.decode('UTF-8')
+            + "&sessionTicket=" + str(session) + "&thumbprint=" + vc_fingerprint.decode('UTF-8')
         webbrowser.open(url, new=2)
         time.sleep(5)
 

@@ -57,7 +57,8 @@ def show(ctx, file):
             headers=headers,
             cookies=http_cookie,
             verify=False,
-            stream=True)
+            stream=True
+        )
         print(r.text)
 
     except ContextNotFound:
@@ -96,22 +97,27 @@ def list(ctx):
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         r = requests.get(
-                    http_url,
-                    params=params,
-                    headers=headers,
-                    cookies=http_cookie,
-                    verify=False)
+            http_url,
+            params=params,
+            headers=headers,
+            cookies=http_cookie,
+            verify=False
+        )
         if not r:
             print('Caught error: {} {}'.format(r.status_code, r.reason))
             raise SystemExit(-1)
         output = scrape(r.text, search='log')
-        print('{:<40}{:<30}{:<20}'.format('NAME',
-                                          'LAST-MODIFIED',
-                                          'SIZE'))
+        max_len = str(len(max([_file['name'] for _file in output], key=len)) + 4)
+        header_format = '{:<' + max_len + '}{:<22}{}'
+        output_format = '{name:<' + max_len + '}{lastModified:<22}{size}'
+        print(header_format.format(
+            'NAME',
+            'MODIFIED',
+            'SIZE'
+            )
+        )
         for _file in output:
-            print('{:<40}{:<30}{:<20}'.format(_file['name'],
-                                              _file['lastModified'],
-                                              _file['size']))
+            print(output_format.format(**_file))
 
     except IndexError:
         print('Invalid operation.')

@@ -69,7 +69,7 @@ def upload(ctx, datacenter, remote_file, local_file):
         dc = get_obj(content, [vim.Datacenter], datacenter)
         if not dc:
             print('Datacenter not found.')
-            #raise SystemExit(-1)
+            raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
             print('Datastore not found.')
@@ -78,17 +78,19 @@ def upload(ctx, datacenter, remote_file, local_file):
             remote_file = "/" + remote_file
         resource = "/folder" + remote_file
         http_url = "https://" + context['vcenter'] + ":443" + resource
-        params = {"dsName": datastore.info.name}
+        params = {"dsName": datastore.info.name,
+            "dcPath": dc.name}
         http_cookie = get_http_cookie(si._stub.cookie)
         headers = {'Content-Type': 'application/octet-stream'}
         with open(local_file, "rb") as f:
             requests.put(
-                        http_url,
-                        params=params,
-                        data=f,
-                        headers=headers,
-                        cookies=http_cookie,
-                        verify=False)
+                http_url,
+                params=params,
+                data=f,
+                headers=headers,
+                cookies=http_cookie,
+                verify=False
+            )
 
     except vmodl.MethodFault as e:
         print("Caught vmodl fault : " + e.msg)
@@ -116,7 +118,7 @@ def browse(ctx, datacenter, folder):
         dc = get_obj(content, [vim.Datacenter], datacenter)
         if not dc:
             print('Datacenter not found.')
-            #raise SystemExit(-1)
+            raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
             print('Datastore not found.')
@@ -125,26 +127,32 @@ def browse(ctx, datacenter, folder):
             folder = "/" + folder
         resource = "/folder" + folder
         http_url = "https://" + context['vcenter'] + ":443" + resource
-        params = {"dsName": datastore.info.name}
+        params = {"dsName": datastore.info.name,
+            "dcPath": dc.name}
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         r = requests.get(
-                    http_url,
-                    params=params,
-                    headers=headers,
-                    cookies=http_cookie,
-                    verify=False)
+            http_url,
+            params=params,
+            headers=headers,
+            cookies=http_cookie,
+            verify=False
+        )
         if not r:
             print('Caught error: {} {}'.format(r.status_code, r.reason))
             raise SystemExit(-1)
         output = scrape(r.text, search=ds_name)
-        print('{:<40}{:<30}{:<20}'.format('NAME',
-                                          'LAST-MODIFIED',
-                                          'SIZE'))
+        max_len = str(len(max([_file['name'] for _file in output], key=len)) + 4)
+        header_format = '{:<' + max_len + '}{:<22}{}'
+        output_format = '{name:<' + max_len + '}{lastModified:<22}{size}'
+        print(header_format.format(
+            'NAME',
+            'MODIFIED',
+            'SIZE'
+            )
+        )
         for _file in output:
-            print('{:<40}{:<30}{:<20}'.format(_file['name'],
-                                              _file['lastModified'],
-                                              _file['size']))
+            print(output_format.format(**_file))
 
     except IndexError:
         print('Invalid operation.')
@@ -183,15 +191,16 @@ def delete(ctx, datacenter, file):
         resource = "/folder" + file
         http_url = "https://" + context['vcenter'] + ":443" + resource
         params = {"dsName": datastore.info.name,
-                  "dcPath": dc.name}
+            "dcPath": dc.name}
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         r = requests.delete(
-                            http_url,
-                            params=params,
-                            headers=headers,
-                            cookies=http_cookie,
-                            verify=False)
+            http_url,
+            params=params,
+            headers=headers,
+            cookies=http_cookie,
+            verify=False
+        )
         if not r:
             print('Caught error: {}'.format(r.reason))
             raise SystemExit(-1)
@@ -220,8 +229,8 @@ def download(ctx, datacenter, file, local):
         si = inject_token(context)
         content = si.content
         dc = get_obj(content, [vim.Datacenter], datacenter)
-        if not dc:
-            print('Datacenter not found.')
+        if not isinstance(dc, vim.Datacenter):
+            print('Datacenter {} not found.'.format(datacenter))
             raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
@@ -232,18 +241,18 @@ def download(ctx, datacenter, file, local):
         resource = "/folder" + file
         http_url = "https://" + context['vcenter'] + ":443" + resource
         params = {"dsName": datastore.info.name,
-                  "dcPath": dc.name}
+            "dcPath": dc.name}
         headers = {'Content-Type': 'application/octet-stream'}
         http_cookie = get_http_cookie(si._stub.cookie)
         with open(local, 'wb') as f:
             r = requests.get(
-                            http_url,
-                            params=params,
-                            headers=headers,
-                            cookies=http_cookie,
-                            verify=False,
-                            stream=True
-                            )
+                http_url,
+                params=params,
+                headers=headers,
+                cookies=http_cookie,
+                verify=False,
+                stream=True
+            )
             total_length = r.headers.get('content-length')
             total_length = int(total_length)
             dl = 0
@@ -254,11 +263,13 @@ def download(ctx, datacenter, file, local):
                 progress = round(done * 50)
                 blanks = 50 - progress
                 sys.stdout.write('\r {:<3}% [{}>{}] {}/{}'.format(
-                                                        round(done * 100),
-                                                        '=' * progress,
-                                                        ' ' * blanks,
-                                                        dl,
-                                                        total_length))
+                    round(done * 100),
+                    '=' * progress,
+                    ' ' * blanks,
+                    dl,
+                    total_length
+                    )
+                )
 
     except vmodl.MethodFault as e:
         print("Caught vmodl fault : " + e.msg)

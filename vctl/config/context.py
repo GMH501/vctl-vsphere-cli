@@ -69,7 +69,7 @@ def create(vcenter, username, password, save):
 @click.argument('current', nargs=1)
 @click.argument('new', nargs=1)
 def rename(current, new):
-    """Rename a context name from <current> name to <new> name.
+    """Rename a context from <current> name to <new> name.
 
     # ex.: vctl config context rename <current> <new>
     """

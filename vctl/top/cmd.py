@@ -90,15 +90,16 @@ def host(name, context):
             print('Host {} not found.'.format(name))
             raise SystemExit(1)
         perfResults = BuildQuery(
-                            content,
-                            [
-                                'cpu.usage.average',
-                                'cpu.usagemhz.average',
-                                'mem.usage.average',
-                                'mem.active.average',
-                                'net.usage.average'
-                            ], 
-                            host)
+            content,
+            [
+                'cpu.usage.average',
+                'cpu.usagemhz.average',
+                'mem.usage.average',
+                'mem.active.average',
+                'net.usage.average'
+            ], 
+            host
+        )
         if not perfResults:
             print('Cannot fetch performance metrics.')
             raise SystemExit(-1)
@@ -115,14 +116,18 @@ def host(name, context):
             'CPU USAGE(MHz)',
             'MEM USAGE(%)',
             'MEM ACTIVE(GiB)',
-            'NET USAGE(KBps)'))
+            'NET USAGE(KBps)'
+            )
+        )
         print('{:<36.33}{:<20}{:<20}{:<20}{:<20}{:<20}'.format(
             host.name,
             results[0],
             results[1],
             results[2],
             results[3],
-            results[4]))
+            results[4]
+            )
+        )
         
     except ContextNotFound:
         print('Context not found.')
