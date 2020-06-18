@@ -11,6 +11,7 @@ instance/
 htmlcov/
 docs/
 demo/
+run/
 
 dist/
 build/

@@ -19,6 +19,7 @@ spinner = progressMeter()
 def taskProgress(task, percentDone):
     """
     """
+    sys.stdout.write('\b')
     sys.stdout.write(spinner.__next__())
     sys.stdout.flush()
     time.sleep(0.5)

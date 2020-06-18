@@ -1,7 +1,7 @@
 import sys
 
 import click
-from pyVmomi import vim
+from pyVmomi import vim, vmodl
 
 from vctl.helpers.helpers import load_context, jsonify
 from vctl.helpers.vmware import get_obj, snapshot_tree, snapshot_obj, search_snapshot

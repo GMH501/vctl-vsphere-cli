@@ -6,6 +6,7 @@ from vctl.describe.cmd import describe
 from vctl.objects.guest import guest
 from vctl.objects.vm import vm
 from vctl.objects.datastore import datastore
+from vctl.run.cmd import run
 from vctl.top.cmd import top
 
 
@@ -16,6 +17,7 @@ def vctl():
 
 
 vctl.add_command(config)
+vctl.add_command(run)
 vctl.add_command(get)
 vctl.add_command(guest)
 vctl.add_command(describe)

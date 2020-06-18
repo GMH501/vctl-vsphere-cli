@@ -77,5 +77,4 @@ def datastores(context):
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        #print('Caught error:', e)
-        raise
+        print('Caught error:', e)
