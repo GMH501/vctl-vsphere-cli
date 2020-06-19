@@ -1,0 +1,17 @@
+###
+
+---
+name: Creating snapshots
+snapshot:
+  mode: create
+  vm : $item
+  description: Test
+loop:
+ - DC0_H0_VM0
+ - DC0_H0_VM1
+ - DC0_C1_RP0_VM
+ - DC0_C1_RP0_VM
+ - DC1_H0_VM0
+ - DC1_H0_VM1
+ - DC1_C0_RP0_VM
+...
