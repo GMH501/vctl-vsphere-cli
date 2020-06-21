@@ -122,8 +122,6 @@ def get_procs(ctx, json, username, password):
                 )
             )
             for proc in procs_list:
-                if proc['exitCode'] == None:
-                    proc['exitCode'] = 'None'
                 print(output_format.format(**proc))
 
     except ContextNotFound:

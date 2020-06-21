@@ -76,14 +76,14 @@ def get_vm_obj(vm):
             'hostname': guest.hostName,
             'guestOS': guest.guestFullName,
             'ipAddress': guest.ipAddress,
-            'toolsStatus': guest.toolsStatus,
+            'toolsStatus': str(guest.toolsStatus),
             'hwVersion': guest.hwVersion
         },
         'runtime': {
             'host': runtime.host.name,
             'bootTime': None,
-            'connectionState': runtime.connectionState,
-            'powerState': runtime.powerState
+            'connectionState': str(runtime.connectionState),
+            'powerState': str(runtime.powerState)
         },
         'hardware': {
             'numCPU': hardware.numCPU,
@@ -97,9 +97,8 @@ def get_vm_obj(vm):
     }
     if runtime.bootTime is not None:
         vm_obj['runtime']['bootTime'] = runtime.bootTime.strftime("%a, %d %b %Y %H:%M:%S %z")
-    disk_list, network_list = get_vm_hardware_lists(hardware)
-    vm_obj['hardware']['virtualDisks'] = disk_list
-    vm_obj['hardware']['virtualNics'] = network_list
+    vm_obj['hardware']['virtualDisks'], \
+        vm_obj['hardware']['virtualNics'] = get_vm_hardware_lists(hardware)
     return vm_obj
 
 
@@ -144,7 +143,7 @@ def snapshot_tree(snap_list):
         snap_info['id'] = snapshot.id
         snap_info['name'] = snapshot.name
         snap_info['createTime'] = snapshot.createTime.strftime("%a, %d %b %Y %H:%M:%S %z")
-        snap_info['state'] = snapshot.state
+        snap_info['state'] = str(snapshot.state)
         snap_info['quiesced'] = snapshot.quiesced
         output.append(snap_info)
         if snapshot.childSnapshotList != []:
@@ -190,15 +189,15 @@ def procs_obj(procs):
             'pid': proc.pid,
             'owner': proc.owner,
             'cmdLine': proc.cmdLine,
-            'exitCode': proc.exitCode
+            'exitCode': str(proc.exitCode)
         }
         if proc.startTime is not None:
             obj['startTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
         else:
-            obj['startTime'] = None
+            obj['startTime'] = str(None)
         if proc.endTime is not None:
             obj['endTime'] = proc.startTime.strftime("%a, %d %b %Y %H:%M:%S %z")
         else:
-            obj['endTime'] = None
+            obj['endTime'] = str(None)
         procs_list.append(obj)
     return procs_list

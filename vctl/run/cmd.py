@@ -95,8 +95,8 @@ def snapshot(content, mode, vm, description, memory=False, quiesce=False, wait=T
                 return 2, None
 
         else:
-            print('Incorrect parameter: {}'.format(mode))
-            return 1
+            error ='Incorrect parameter: {}'.format(mode)
+            raise SystemExit(error)
 
     except vim.fault.NotAuthenticated:
         error = 'Caught vctl fault: Context expired.'
@@ -128,39 +128,38 @@ def run(file, context):
                 print('{}===> [{}]'.format(Fore.RESET, task['name']))
                 task_keys.remove('name')
             for key in task_keys:
-                if (key in dir(sys.modules[__name__])) and \
+                if (key not in dir(sys.modules[__name__])) and \
                     key not in ['loop']:
-                    function = key
-                    if 'loop' in task_keys:
-                        for item in task['loop']:
-                            parameters = dict()
-                            for argument, parameter in task[function].items():
-                                if type(parameter) == str:
-                                    subs_param = re.sub(REGEX, item, parameter)
-                                    parameters[argument] = subs_param
-                                else:
-                                    parameters[argument] = parameter
-                            rc, log = eval(function + "(content=content, **parameters)")
-                            if rc == 0:
-                                print('{}  rc => {}, log => {}'.format(Fore.YELLOW, rc, log))
-                            elif rc == 1:
-                                print('{}  rc => {}, log => {}'.format(Fore.RED, rc, log))
-                            elif rc == 2:
-                                pass
-                    else:
-                        rc, log = eval(function + "(content=content, **task[function])")
+                    raise ValueError('{}function {} not defined.'.format(Fore.RESET, key))
+            for key in task_keys:
+                if key in ['loop']:
+                    continue
+                function = key
+                if 'loop' in task_keys:
+                    for item in task['loop']:
+                        parameters = dict()
+                        for argument, parameter in task[function].items():
+                            if type(parameter) == str:
+                                subs_param = re.sub(REGEX, item, parameter)
+                                parameters[argument] = subs_param
+                            else:
+                                parameters[argument] = parameter
+                        rc, log = eval(function + "(content=content, **parameters)")
                         if rc == 0:
-                            print('{}  rc => {}, log => {}'.format(Fore.GREEN, rc, log))
+                            print('{}  rc => {}, log => {}'.format(Fore.YELLOW, rc, log))
                         elif rc == 1:
                             print('{}  rc => {}, log => {}'.format(Fore.RED, rc, log))
                         elif rc == 2:
-                            print('{}  rc => {}, log => {}'.format(Fore.RED, rc, log))
-
+                            pass
                 else:
-                    if key not in ['loop', 'name']:
-                        raise ValueError('{}function {} not defined.'.format(Fore.RESET, key))
-                    else:
-                        pass
+                    rc, log = eval(function + "(content=content, **task[function])")
+                    if rc == 0:   # wait success
+                        print('{}  rc => {}, log => {}'.format(Fore.GREEN, rc, log))
+                    elif rc == 1: # wait error
+                        print('{}  rc => {}, log => {}'.format(Fore.RED, rc, log))
+                    elif rc == 2: # no wait
+                        print('{}  rc => {}, log => {}'.format(Fore.RED, rc, log))
+
     except Exception as e:
         print('{}Caught error: {}'.format(Fore.RESET, e))
-        raise e #SystemExit(1)
+        SystemExit(1)

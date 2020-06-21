@@ -3,7 +3,7 @@ import sys
 import click
 from pyVmomi import vim, vmodl
 
-from vctl.helpers.helpers import load_context, jsonify
+from vctl.helpers.helpers import load_context, jsonify, yamlify
 from vctl.helpers.vmware import get_obj, snapshot_tree, snapshot_obj, search_snapshot
 from vctl.helpers.auth import inject_token
 from vctl.helpers.utils import waiting
@@ -57,8 +57,13 @@ def create(ctx, name, description, memory, quiesce, wait):
 
 
 @snapshot.command()
+@click.option('--output', '-o',
+              help='The desired output format.',
+              type=click.Choice(['json', 'yaml']),
+              default='json',
+              required=False)
 @click.pass_context
-def list(ctx):
+def list(ctx, output):
     vm = ctx.name
     context = ctx.context
     try:
@@ -70,7 +75,10 @@ def list(ctx):
             SystemExit('Specified vm not found.')
         if vm.snapshot is not None:
             snap_obj = snapshot_obj(vm.snapshot)
-            jsonify(snap_obj)
+            if output == 'json':
+                jsonify(snap_obj)
+            else:
+                yamlify(snap_obj)
         else:
             raise SystemExit('The selected vm does not have any snapshots.')
 
@@ -82,7 +90,7 @@ def list(ctx):
         raise SystemExit(1)
     except Exception as e:
         print('Caught error: {}'.format(e))
-        raise SystemExit(1)
+        SystemExit(1)
 
 
 @snapshot.command()

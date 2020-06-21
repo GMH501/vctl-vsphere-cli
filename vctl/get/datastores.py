@@ -63,12 +63,12 @@ def datastores(context):
             summary = ds.summary
             print(output_format.format(
                 summary.name,
-                summary.capacity / 1024 / 1024 / 1024,
-                (summary.capacity - summary.freeSpace + summary.uncommitted) / 1024 / 1024 / 1024,
-                summary.freeSpace / 1024 / 1024 / 1024,
+                "", #summary.capacity / 1024 / 1024 / 1024,
+                "", #(summary.capacity - summary.freeSpace + summary.uncommitted) / 1024 / 1024 / 1024,
+                "", # summary.freeSpace / 1024 / 1024 / 1024,
                 len(ds.host),
                 len(ds.vm),
-                summary.url
+                "" #summary.url
                 )
             )
 
@@ -78,3 +78,4 @@ def datastores(context):
         print('Context expired.')
     except Exception as e:
         print('Caught error:', e)
+        raise e

@@ -117,8 +117,17 @@ def jsonify(obj, sort=False):
         obj (dict): the selected object to dumps.
         sort (bool): sort the keys in the obj dict.
     """
-    json.dump(obj, sys.stdout, indent=4, sort_keys=sort)
+    json.dump(obj, sys.stdout, indent=2, sort_keys=sort)
 
+
+def yamlify(obj, sort=False):
+    """Dumps the object on standard output, yaml formatted.
+
+    Args:
+        obj (dict): the selected object to dumps.
+        sort (bool): sort the keys in the obj dict.
+    """
+    yaml.dump(obj, sys.stdout, indent=2, sort_keys=sort)
 
 
 def scrape(html, search=''):
