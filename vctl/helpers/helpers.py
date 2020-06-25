@@ -106,7 +106,7 @@ def load_context(context=None):
             decoded_context = context
             return decoded_context
     if decoded_context is None:
-        print('Context not found in config file.')
+        print('Context {} not found in config file.'.format(context))
         raise SystemExit(1)
 
 

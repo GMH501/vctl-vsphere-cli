@@ -6,6 +6,7 @@ import time
 import sys
 import os
 import yaml
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import click
 from colorama import init, Fore
@@ -83,6 +84,7 @@ def snapshot(content, mode, vm, description, memory=False, quiesce=False, wait=T
             raise NotImplementedError('virtual machine not found.')
         if mode == 'create':
             task = _vm.CreateSnapshot(vm, description, memory=memory, quiesce=quiesce)
+            # print(f"executed on vm {vm}") #DEBUG
             if wait:
                 WaitForTask(task)
                 return 0, '{} snapshot created.'.format(vm)
@@ -180,17 +182,29 @@ def run(file, context):
                 print('===> [{}]'.format(document['name']))
                 functions.remove('name')
             for function in functions:
-                if not eval('callable({})'.format(function)):
-                    raise ValueError('function {} not defined.'.format(function))
+                try:
+                    eval('callable({})'.format(function))
+                except NameError:
+                    raise NameError('function {} not defined.'.format(function))
             for function in functions:
                 if function in ['loop', 'with_vars']:
                     continue
                 func_params = document[function]
                 if 'with_vars' in functions:
+                    function = eval(function)
+                    new_vars = []
                     for variables in document['with_vars']:
-                        new_params = with_vars(func_params, variables)
-                        rc, log = eval(function + "(content=content, **new_params)")
-                        func_output(rc, log)   
+                        new_vars.append(with_vars(func_params, variables))
+                    with ThreadPoolExecutor(max_workers=5) as executor:
+                        _future = {executor.submit(function, content=content, **new_params): \
+                            new_params for new_params in new_vars}
+                        for future in as_completed(_future):
+                            try:
+                                rc, log = future.result()
+                                func_output(rc, log)
+                            except Exception as e:
+                                print('{}Caught error: {}'.format(Fore.RESET, e))
+                                continue
                 elif 'loop' in functions:
                     for item in document['loop']:
                         new_params = loop(func_params, item)

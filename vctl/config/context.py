@@ -60,9 +60,13 @@ def create(vcenter, username, password, save):
             config['contexts'].append(context)
             config['current-context'] = context['name']
             dump_config(config)
-            return
+  
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        print('Caught exception: ', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @context.command()
@@ -73,21 +77,23 @@ def rename(current, new):
 
     # ex.: vctl config context rename <current> <new>
     """
-    if current != new:
-        try:
-            config = load_config()
-            current_context = config['current-context']
-            for _context in config['contexts']:
-                if _context['name'] == current:
-                    _context['name'] = new
-                    if current == current_context:
-                        config['current-context'] = new
-                    dump_config(config)
-                    return
-            print('Context not found.')
-        except (ConfigNotFound, ContextNotFound):
-            print('Context not found.')
-    return
+    if current == new:
+        return
+    try:
+        config = load_config()
+        current_context = config['current-context']
+        for _context in config['contexts']:
+            if _context['name'] == current:
+                _context['name'] = new
+                if current == current_context:
+                    config['current-context'] = new
+                dump_config(config)
+                return
+        print('Context {} not found.'.format(current))
+
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @context.command()
@@ -116,40 +122,14 @@ def refresh(context):
                 dump_config(config)
 
     except vim.fault.NotAuthenticated:
-        raise SystemExit('Context is expired.')
+        print('Context is expired.')
+        raise SystemExit(1)   
     except vmodl.MethodFault as e:
-        raise SystemExit('Caught vmodl fault: ' + e.msg)
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
     except Exception as e:
-        #print('Caught error:', e)
-        raise
-
-
-@context.command()
-@click.option('--context', '-c',
-              help='The context you want to test.',
-              required=False)
-def test(context):
-    try:
-        context = load_context(context=context)
-        try:
-            si = inject_token(context)
-            token = context['token'].split('=')[1]
-            sId = re.findall(r'[0-9a-z][^\s]*[0-9a-z]', token)[0]
-            print(sId)
-            is_valid = si.content.sessionManager.SessionIsActive(sId, context['username'])
-            print(is_valid)
-            print(si.content)
-            if is_valid:
-                raise SystemExit('Context is active.')
-        except:
-            raise
-
-    except vim.fault.NotAuthenticated:
-        raise SystemExit('Context is expired.')
-    except vmodl.MethodFault as e:
-        raise SystemExit('Caught vmodl fault: ' + e.msg)
-    except Exception as e:
-        print('Caught error:', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @context.command()
@@ -157,21 +137,20 @@ def test(context):
               help='The context you want to close.',
               required=False)
 def close(context):
-    """Close the <context> towards the vcenter.\n
-    The default <context> is current-context.
+    """Close the <context> towards the vcenter.
+    The default context is <current-context>.
 
     # ex.: vctl config context close [-c <context>]
     """
+    context = load_context(context=context)
     try:
-        context = load_context(context=context)
-        try:
-            si = inject_token(context)
-            content = si.RetrieveContent()
-            content.sessionManager.Logout()
-        except Exception as e:
-            print('Caught error: ', e)
-    except (ConfigNotFound, ContextNotFound):
-        print('Context not found.')
+        si = inject_token(context)
+        content = si.RetrieveContent()
+        content.sessionManager.Logout()
+
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @context.command()
@@ -194,9 +173,12 @@ def remove(context):
                 config['current-context'] = ''
                 dump_config(config)
                 return
-        print('Context not found.')
-    except (ConfigNotFound, ContextNotFound):
-        print('Context not found.')
+        print('Context {} not found.'.format(context))
+        raise SystemExit(1)
+
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @context.command()
@@ -206,14 +188,18 @@ def use(context):
 
     # ex.: vctl config context use <context>.
     """
-    config = load_config()
-    current_context = config['current-context']
-    if context != current_context:
-        for _context in config['contexts']:
-            if _context['name'] == context:
-                config['current-context'] = context
-                dump_config(config)
-                print("Switched to context {}.".format(context))
-                return
-        print('Context not found.')
-    return
+    try:
+        config = load_config()
+        current_context = config['current-context']
+        if context != current_context:
+            for _context in config['contexts']:
+                if _context['name'] == context:
+                    config['current-context'] = context
+                    dump_config(config)
+                    print("Switched to context {}.".format(context))
+                    return
+            print('Context {} not found.'.format(context))
+
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)

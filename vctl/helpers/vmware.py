@@ -114,20 +114,20 @@ def get_host_obj(host):
         'hardware': {
             'vendor': hardware.vendor,
             'model': hardware.model,
-            'memorySize': hardware.memorySize,
+            'memorySize': int(hardware.memorySize),
             'cpuModel': hardware.cpuModel,
-            'numCpuPkgs': hardware.numCpuPkgs,
-            'numCpuCores': hardware.numCpuCores,
-            'numCpuThreads': hardware.numCpuThreads,
-            'numNics': hardware.numNics,
-            'numHBAs': hardware.numHBAs
+            'numCpuPkgs': int(hardware.numCpuPkgs),
+            'numCpuCores': int(hardware.numCpuCores),
+            'numCpuThreads': int(hardware.numCpuThreads),
+            'numNics': int(hardware.numNics),
+            'numHBAs': int(hardware.numHBAs)
         },
         'runtime': {
             'inMaintenanceMode': runtime.inMaintenanceMode,
             'bootTime': None,
-            'connectionState': runtime.connectionState,
-            'powerState': runtime.powerState,
-            'standbyMode': runtime.standbyMode
+            'connectionState': str(runtime.connectionState),
+            'powerState': str(runtime.powerState),
+            'standbyMode': str(runtime.standbyMode)
         }
     }
     if runtime.bootTime is not None:
@@ -142,6 +142,7 @@ def snapshot_tree(snap_list):
         snap_info['snapshot'] = snapshot.snapshot._moId
         snap_info['id'] = snapshot.id
         snap_info['name'] = snapshot.name
+        snap_info['description'] = snapshot.description
         snap_info['createTime'] = snapshot.createTime.strftime("%a, %d %b %Y %H:%M:%S %z")
         snap_info['state'] = str(snapshot.state)
         snap_info['quiesced'] = snapshot.quiesced
