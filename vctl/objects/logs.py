@@ -18,8 +18,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 @click.group()
 def logs():
-    """
-
+    """Logs related subcommands.
     """
     pass
 
@@ -30,6 +29,8 @@ def logs():
               required=True)            
 @click.pass_context
 def show(ctx, file):
+    """Print a logs file for the selected virtual machine.
+    """
     name = ctx.name
     context = ctx.context
     try:
@@ -61,9 +62,6 @@ def show(ctx, file):
         )
         print(r.text)
 
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit(1)
     except vim.fault.NotAuthenticated:
         print('Context expired.')
         raise SystemExit(1)
@@ -77,6 +75,8 @@ def show(ctx, file):
 @logs.command()
 @click.pass_context
 def list(ctx):
+    """List all logs files for the virtual machine.
+    """
     name = ctx.name
     context = ctx.context
     try:

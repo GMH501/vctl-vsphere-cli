@@ -52,7 +52,7 @@ def power(content, vm, state, wait=True):
         valid_state = ['on', True, 'off', False]
         if state not in valid_state:
             raise ValueError('state must be one of {}.'.format(['on', 'off']))
-        if state:
+        if state in ['on', True]:
             task = _vm.PowerOnVM_Task()
             state = 'On'
         else:
@@ -75,6 +75,20 @@ def power(content, vm, state, wait=True):
         return 1, error
 
 
+def debug(content, **kwargs):
+    log = '\n  ---------------\n'
+    for key, value in kwargs.items():
+        log += '  {} = {}\n'.format(key, value)
+    return 0, log
+
+def printf(content, **kwargs):
+    log = ''
+    for key, value in kwargs.items():
+        log += value
+    print(log)
+    return 2, None
+
+
 def snapshot(content, mode, vm, description, memory=False, quiesce=False, wait=True):
     """
     """
@@ -84,7 +98,6 @@ def snapshot(content, mode, vm, description, memory=False, quiesce=False, wait=T
             raise NotImplementedError('virtual machine not found.')
         if mode == 'create':
             task = _vm.CreateSnapshot(vm, description, memory=memory, quiesce=quiesce)
-            # print(f"executed on vm {vm}") #DEBUG
             if wait:
                 WaitForTask(task)
                 return 0, '{} snapshot created.'.format(vm)
@@ -108,7 +121,6 @@ def snapshot(content, mode, vm, description, memory=False, quiesce=False, wait=T
 
 def with_vars(function, variables):
     FIND_VAR = re.compile('\$var.([\\w]*)')
-    ### LA FUNZIONE SUPPORTA UN SOLO REPLACE PER STRINGA
     new_parameters = dict()
     for argument, parameter in function.items():
         if type(parameter) == str and parameter.count('$var.') == 1:
@@ -125,7 +137,7 @@ def with_vars(function, variables):
                         if new_param.isdecimal() else new_param
                 elif type(variable) == bool:
                     new_parameters[argument] = variable
-            except KeyError:  ## se all'interno di un parameter trova una $var.<qualcosa> non conosciuta
+            except KeyError:
                 new_parameters[argument] = parameter
         elif type(parameter) == str and parameter.count('$var.') > 1:
             keys = re.findall(FIND_VAR, parameter)
@@ -171,9 +183,6 @@ def func_output(rc, log):
               required=True)
 def run(file, context):
     try:
-        context = load_context(context=context)
-        si = inject_token(context)
-        content = si.content
         file_path = get_path(file)
         documents = load_yaml(file_path)
         for document in documents:
@@ -181,6 +190,19 @@ def run(file, context):
             if 'name' in functions:
                 print('===> [{}]'.format(document['name']))
                 functions.remove('name')
+            if not 'context' in functions:
+                context = load_context(context=context)
+                si = inject_token(context)
+                content = si.content
+            else:
+                if document['context']:
+                    context = load_context(context=document['context'])
+                    si = inject_token(context)
+                    content = si.content
+                    functions.remove('context')
+                else:
+                    content = None
+                    functions.remove('context')
             for function in functions:
                 try:
                     eval('callable({})'.format(function))

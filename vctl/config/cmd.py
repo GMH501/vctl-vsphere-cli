@@ -4,7 +4,6 @@ from pathlib import Path
 
 import click
 
-from vctl.config.context import context
 from vctl.helpers.helpers import load_config
 from vctl.exceptions.exceptions import ConfigNotFound
 
@@ -15,9 +14,6 @@ def config():
     Config and contexts related subcommands.
     """
     pass
-
-
-config.add_command(context)
 
 
 @config.command()

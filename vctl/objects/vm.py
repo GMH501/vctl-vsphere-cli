@@ -20,18 +20,66 @@ from vctl.objects.snapshot import snapshot
 @click.option('--context', '-c',
               help='The context to use for run the command, the default is <current-context>.',
               required=False)
-@click.argument('name', nargs=1,
+@click.argument('vm_name', nargs=1,
               required=True)
 @click.pass_context
-def vm(ctx, context, name):
+def vm(ctx, context, vm_name):
+    """Commands to manage virtual machine instances.
+
+    # ex.: vctl vm VM_TEST0 register --path [datastore1]VM_TEST0/VM_TEST0.vmx --host esxi.home.lab
+
+    # ex.: vctl vm VM_TEST0 power --state on
+
+    # ex.: vctl vm VM_TEST0 procs -u root -p mypassword
+    """
     ctx = click.Context
-    ctx.name = name
+    ctx.name = vm_name
     ctx.context = context
     pass
 
 
 vm.add_command(snapshot)
 vm.add_command(logs)
+
+
+@vm.command()
+@click.pass_context
+def console(ctx):
+    """Open the HTML5 console.
+    """
+    name = ctx.name
+    context = ctx.context
+    try:
+        context = load_context(context=context)
+        si = inject_token(context)
+        content = si.content
+        vm = get_obj(content, [vim.VirtualMachine], name)
+        if not isinstance(vm, vim.VirtualMachine):
+            print('Virtual Machine {} not found.'.format(name))
+            raise SystemExit(1)
+        vm_moid = vm._moId
+        instanceUuid = si.content.about.instanceUuid
+        session_manager = content.sessionManager
+        session = session_manager.AcquireCloneTicket()
+        vc_cert = ssl.get_server_certificate((context['vcenter'], 443))
+        vc_pem = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, vc_cert)
+        vc_fingerprint = vc_pem.digest('sha1')
+        url = "http://" + context['vcenter'] + "/ui/webconsole.html?vmId=" \
+            + vm_moid + "&vmName=" + name + "&serverGuid=" + instanceUuid + "&host=" + context['vcenter'] \
+            + "&sessionTicket=" + str(session) + "&thumbprint=" + vc_fingerprint.decode('UTF-8')
+        webbrowser.open(url, new=2)
+        time.sleep(5)
+
+
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(1)
+    except Exception as e:
+        print('Caught error: {}'.format(e))
+        raise SystemExit(1)
 
 
 @vm.command()
@@ -44,6 +92,8 @@ vm.add_command(logs)
               is_flag=True)
 @click.pass_context
 def power(ctx, state, wait):
+    """Virtual machine power option.
+    """
     name = ctx.name
     context = ctx.context
     try:
@@ -51,8 +101,9 @@ def power(ctx, state, wait):
         si = inject_token(context)
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
-        if not hasattr(vm, '_moId'):
-            raise SystemExit('Specified vm not found.')
+        if not isinstance(vm, vim.VirtualMachine):
+            print('Virtual Machine {} not found.'.format(name))
+            raise SystemExit(1)
         if state == 'on':
             task = vm.PowerOnVM_Task()
         elif state == 'off':
@@ -60,9 +111,6 @@ def power(ctx, state, wait):
         if wait:
             waiting(task)
 
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit()
     except vim.fault.NotAuthenticated:
         print('Context expired.')
         raise SystemExit(1)
@@ -79,13 +127,15 @@ def power(ctx, state, wait):
               help='Json formatted output.',
               is_flag=True)
 @click.option('--username', '-user', '-u',
-              help='The desiderd state for the virtual machine.',
+              help='Userame to login to guest operating system.',
               required=True)
 @click.option('--password', '-pwd', '-p',
-              help='Wait for the task to complete.',
+              help='Password to login to guest operating system.',
               required=True)
 @click.pass_context
-def get_procs(ctx, json, username, password):
+def procs(ctx, json, username, password):
+    """List the processes in guest operating system.
+    """
     name = ctx.name
     context = ctx.context
     try:
@@ -94,7 +144,7 @@ def get_procs(ctx, json, username, password):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
         if not isinstance(vm, vim.VirtualMachine):
-            print('Specified vm not found.')
+            print('Virtual Machine {} not found.'.format(name))
             raise SystemExit(1)
         tools_status = vm.guest.toolsStatus
         if (tools_status == 'toolsNotInstalled' or
@@ -124,38 +174,6 @@ def get_procs(ctx, json, username, password):
             for proc in procs_list:
                 print(output_format.format(**proc))
 
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit(1)
-    except vim.fault.NotAuthenticated:
-        print('Context expired.')
-        raise SystemExit(1)
-    except vmodl.MethodFault as e:
-        print('Caught vmodl fault: {}'.format(e.msg))
-        raise SystemExit(1)
-    except Exception as e:
-        print('Caught error: {}'.format(e))
-        raise SystemExit(1)
-
-
-@vm.command()
-@click.pass_context
-def unregister(ctx):
-    name = ctx.name
-    context = ctx.context
-    try:
-        context = load_context(context=context)
-        si = inject_token(context)
-        content = si.content
-        vm = get_obj(content, [vim.VirtualMachine], name)
-        if not isinstance(vm, vim.VirtualMachine):
-            print('Specified vm not found.')
-            raise SystemExit(1)
-        vm.UnregisterVM()
-
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit(1)
     except vim.fault.NotAuthenticated:
         print('Context expired.')
         raise SystemExit(1)
@@ -188,6 +206,8 @@ def unregister(ctx):
               is_flag=True)
 @click.pass_context
 def register(ctx, folder, host, path, pool, template, wait):
+    """Register the virtual machine in the inventory.
+    """
     name = ctx.name
     context = ctx.context
     try:
@@ -195,40 +215,37 @@ def register(ctx, folder, host, path, pool, template, wait):
         si = inject_token(context)
         content = si.content
         if folder is None:
-            folder = get_obj(content, [vim.Folder], 'vm')
+            _folder = get_obj(content, [vim.Folder], 'vm')
         else:
-            folder = get_obj(content, [vim.Folder], folder)
-        if not isinstance(folder, vim.Folder):
-            print('Specified folder not found.')
-            raise SystemExit(1)     
+            _folder = get_obj(content, [vim.Folder], folder)
+        if not isinstance(_folder, vim.Folder):
+            print('Folder {} not found.'.format(folder))
+            raise SystemExit(1)  
         if pool is None:
-            pool = get_obj(content, [vim.ResourcePool], 'Resources')
+            _pool = get_obj(content, [vim.ResourcePool], 'Resources')
         else:
-            pool = get_obj(content, [vim.ResourcePool], pool)
-        if not isinstance(pool, vim.ResourcePool):
-            print('Specified pool not found.')
-            raise SystemExit(1)    
-        host = get_obj(content, [vim.HostSystem], host)
-        if not isinstance(host, vim.HostSystem):
-            print('Specified host not found.')
-            raise SystemExit(1)
+            _pool = get_obj(content, [vim.ResourcePool], pool)
+        if not isinstance(_pool, vim.ResourcePool):
+            print('Pool {} not found.'.format(pool))
+            raise SystemExit(1)   
+        _host = get_obj(content, [vim.HostSystem], host)
+        if not isinstance(_host, vim.HostSystem):
+            print('Host {} not found.'.format(host))
+            raise SystemExit(1)  
         if template:
-            pool = None
+            _pool = None
         if 'vmtx' in path:
             template = True
-            pool = None
-        task = folder.RegisterVM_Task(
+            _pool = None
+        task = _folder.RegisterVM_Task(
             name=name,
             path=path,
-            pool=pool,
+            pool=_pool,
             asTemplate=template,
-            host=host)
+            host=_host)
         if wait:
             waiting(task)
 
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit(1)
     except vim.fault.NotAuthenticated:
         print('Context expired.')
         raise SystemExit(1)
@@ -242,7 +259,9 @@ def register(ctx, folder, host, path, pool, template, wait):
 
 @vm.command()
 @click.pass_context
-def open_console(ctx):
+def unregister(ctx):
+    """Unregister the virtual machine from the inventory.
+    """
     name = ctx.name
     context = ctx.context
     try:
@@ -251,24 +270,10 @@ def open_console(ctx):
         content = si.content
         vm = get_obj(content, [vim.VirtualMachine], name)
         if not isinstance(vm, vim.VirtualMachine):
-            print('Specified vm not found.')
+            print('Virtual Machine {} not found.'.format(name))
             raise SystemExit(1)
-        vm_moid = vm._moId
-        instanceUuid = si.content.about.instanceUuid
-        session_manager = content.sessionManager
-        session = session_manager.AcquireCloneTicket()
-        vc_cert = ssl.get_server_certificate((context['vcenter'], 443))
-        vc_pem = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, vc_cert)
-        vc_fingerprint = vc_pem.digest('sha1')
-        url = "http://" + context['vcenter'] + "/ui/webconsole.html?vmId=" \
-            + vm_moid + "&vmName=" + name + "&serverGuid=" + instanceUuid + "&host=" + context['vcenter'] \
-            + "&sessionTicket=" + str(session) + "&thumbprint=" + vc_fingerprint.decode('UTF-8')
-        webbrowser.open(url, new=2)
-        time.sleep(5)
+        vm.UnregisterVM()
 
-    except ContextNotFound:
-        print('Context not found.')
-        raise SystemExit(1)
     except vim.fault.NotAuthenticated:
         print('Context expired.')
         raise SystemExit(1)
@@ -277,4 +282,4 @@ def open_console(ctx):
         raise SystemExit(1)
     except Exception as e:
         print('Caught error: {}'.format(e))
-        raise 
+        raise SystemExit(1)

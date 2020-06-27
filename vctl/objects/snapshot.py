@@ -11,8 +11,7 @@ from vctl.helpers.utils import waiting
 
 @click.group()
 def snapshot():
-    """
-
+    """Snapshot related subcommands.
     """
     pass
 
@@ -29,7 +28,7 @@ def snapshot():
 @click.option('--wait', '-w', is_flag=True)
 @click.pass_context
 def create(ctx, name, description, memory, quiesce, wait):
-    """
+    """Create a snapshot.
     """
     vm = ctx.name
     context = ctx.context
@@ -64,6 +63,8 @@ def create(ctx, name, description, memory, quiesce, wait):
               required=False)
 @click.pass_context
 def list(ctx, output):
+    """List all the snapshots.
+    """
     vm = ctx.name
     context = ctx.context
     try:
@@ -100,6 +101,8 @@ def list(ctx, output):
 @click.option('--wait', '-w', is_flag=True)
 @click.pass_context
 def remove(ctx, name, wait):
+    """Remove a snapshot.
+    """
     vm = ctx.name
     context = ctx.context
     try:
@@ -141,6 +144,8 @@ def remove(ctx, name, wait):
               is_flag=True)
 @click.pass_context
 def revert(ctx, name, wait):
+    """Revert the virtual machine state from a snapshot.
+    """
     vm = ctx.name
     context = ctx.context
     try:
@@ -159,7 +164,7 @@ def revert(ctx, name, wait):
                     waiting(task)
                 return
             else:
-                raise SystemExit('Snapshot not found.')
+                raise SystemExit('Snapshot {} not found.'.format(name))
         else:
             raise SystemExit('The selected vm does not have any snapshots.')
 

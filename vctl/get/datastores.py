@@ -52,23 +52,23 @@ def datastores(context):
         print(header_format.format(
             'NAME',
             'CAPACITY(GB)',
-            'PROVSIONED(GB)', # TODO Aggiungere USED
+            'PROVSIONED(%)', # TODO Aggiungere USED
             'FREE(GB)',
             'HOSTS',
             'VMS',
-            'URL'
+            'PATH'
             )
         )
         for ds in datastores:
             summary = ds.summary
             print(output_format.format(
                 summary.name,
-                "", #summary.capacity / 1024 / 1024 / 1024,
-                "", #(summary.capacity - summary.freeSpace + summary.uncommitted) / 1024 / 1024 / 1024,
-                "", # summary.freeSpace / 1024 / 1024 / 1024,
+                summary.capacity / 1024 / 1024 / 1024,
+                (summary.capacity - summary.freeSpace + summary.uncommitted) / 1024 / 1024 / 1024,
+                summary.freeSpace / 1024 / 1024 / 1024,
                 len(ds.host),
                 len(ds.vm),
-                "" #summary.url
+                summary.url
                 )
             )
 
