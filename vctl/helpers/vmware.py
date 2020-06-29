@@ -23,7 +23,7 @@ def get_obj(content, vimtype, name=None):
     objects = list(container.view)
     if name:
         for c in container.view:
-            if c.name == name:
+            if name in c.name:
                 obj = c
                 break
         container.Destroy()

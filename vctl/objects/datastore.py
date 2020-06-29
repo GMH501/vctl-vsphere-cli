@@ -19,13 +19,12 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 @click.option('--context', '-c',
               help='The context to use for run the command, the default is <current-context>.',
               required=False)
-@click.option('--name', '-n',
-              help='The name of the virtual machine on which to run the command.',
+@click.argument('datastore_name', nargs=1,
               required=True)
 @click.pass_context
-def datastore(ctx, context, name):
+def datastore(ctx, context, datastore_name):
     ctx = click.Context
-    ctx.name = name
+    ctx.name = datastore_name
     ctx.context = context
     pass
 
@@ -68,11 +67,11 @@ def upload(ctx, datacenter, remote_file, local_file):
         content = si.content
         dc = get_obj(content, [vim.Datacenter], datacenter)
         if not dc:
-            print('Datacenter not found.')
+            print('Datacenter {} not found.'.format(datacenter))
             raise SystemExit(-1)
         datastore = get_obj(content, [vim.Datastore], ds_name)
         if not datastore:
-            print('Datastore not found.')
+            print('Datastore {} not found.'.format(ds_name))
             raise SystemExit(-1)
         if not remote_file.startswith("/"):
             remote_file = "/" + remote_file
@@ -205,8 +204,14 @@ def delete(ctx, datacenter, file):
             print('Caught error: {}'.format(r.reason))
             raise SystemExit(-1)
         
+    except vim.fault.NotAuthenticated:
+        print('Context expired.')
+        raise SystemExit(-1)
     except vmodl.MethodFault as e:
-        print("Caught vmodl fault : " + e.msg)
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(-1)
+    except Exception as e:
+        print('Caught error: {}'.format(e))
         raise SystemExit(-1)
 
 

@@ -48,10 +48,12 @@ def datastores(context):
                 )
             )
 
-    except ContextNotFound:
-        print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
+        raise SystemExit(-1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(-1)
     except Exception as e:
-        print('Caught error:', e)
-        raise e
+        print('Caught error: {}'.format(e))
+        raise SystemExit(-1)

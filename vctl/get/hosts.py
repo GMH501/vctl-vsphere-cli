@@ -14,7 +14,7 @@ from vctl.exceptions.exceptions import ContextNotFound
               help='the context you want to use for run this command, default is current-context.',
               required=False)
 @click.option('--cluster', '-cl',
-              help='the cluster for which you want to run the command.',
+              help='The cluster for which you want to run the command.',
               required=False)
 def hosts(context, cluster):
     try:
@@ -70,9 +70,12 @@ def hosts(context, cluster):
                 )
             )
 
-    except ContextNotFound:
-        print('Context not found.')
     except vim.fault.NotAuthenticated:
         print('Context expired.')
+        raise SystemExit(-1)
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault: {}'.format(e.msg))
+        raise SystemExit(-1)
     except Exception as e:
-        raise e#print('Caught error:', e)
+        print('Caught error: {}'.format(e))
+        raise SystemExit(-1)

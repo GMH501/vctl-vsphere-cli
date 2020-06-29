@@ -21,12 +21,11 @@ def host(ctx, context, host_name):
     ctx.context = context
     pass
 
-##### host.config.storageDevice.scsiLun[]
 
 @host.command()
 @click.pass_context
 def paths(ctx):
-    """List all the paths state.
+    """List all storage paths.
     """
     name = ctx.name
     context = ctx.context
@@ -35,24 +34,30 @@ def paths(ctx):
         si = inject_token(context)
         content = si.content
         host = get_obj(content, [vim.HostSystem], name)
-        paths = host.config.storageDevice.multipathInfo.lun
-        #paths = host.configManager.storageSystem.multipathStateInfo.path
-        print(paths)
-        return
-        max_len = str(len(max([path.name for path in paths], key=len)) + 4)
-        header_format = '{:<' + max_len + '}{}'
-        print(header_format.format(
-            'NAME',
-            'STATE'
-            )
-        )
-        for path in paths:
+        luns = host.config.storageDevice.multipathInfo.lun
+        for lun in luns:
+            lun_key = lun.lun
+            lun_name = 'None'
+            for scsi_lun in host.config.storageDevice.scsiLun:
+                if scsi_lun.key == lun_key:
+                    lun_name = scsi_lun.canonicalName
+                    break
+            paths = lun.path
+            max_len = str(len(max([path.name for path in paths], key=len)) + 4)
+            header_format = '{:<' + max_len + '}{:<11}{}'
             print(header_format.format(
-            path.name,
-            path.pathState
+                'PATH NAME',
+                'STATE',
+                'LUN NAME'
+                )
             )
-        )
-        return
+            for path in paths:
+                print(header_format.format(
+                path.name,
+                path.pathState,
+                lun_name
+                )
+            )
 
     except vim.fault.NotAuthenticated:
         print('Context expired.')
@@ -67,8 +72,8 @@ def paths(ctx):
 
 @host.command()
 @click.pass_context
-def datastores(ctx):
-    """List all datastores.
+def luns(ctx):
+    """List all luns.
     """
     name = ctx.name
     context = ctx.context
@@ -77,23 +82,27 @@ def datastores(ctx):
         si = inject_token(context)
         content = si.content
         host = get_obj(content, [vim.HostSystem], name)        
-        volumes = host.configManager.storageSystem.fileSystemVolumeInfo.mountInfo
-            #print(str(datastore.volume.type) + "   " + str(datastore.volume.extent[0].diskName))
-        paths = host.configManager.storageSystem.multipathStateInfo.path
-        max_len = str(len(max([path.name for path in paths], key=len)) + 4)
-        header_format = '{:<' + max_len + '}{}'
+        luns = host.config.storageDevice.scsiLun
+        max_len = str(len(max([lun.canonicalName for lun in luns], key=len)) + 4)
+        header_format = '{:<' + max_len + '}{:<15}{:<15}{:<8}{}'
         print(header_format.format(
             'NAME',
-            'STATE'
+            'NUM BLOCKS',
+            'BLOCK SIZE',
+            'SSD',
+            'MODEL',
+
             )
         )
-        for path in paths:
+        for lun in luns:
             print(header_format.format(
-            path.name,
-            path.pathState
+            lun.canonicalName,
+            lun.capacity.block,
+            lun.capacity.blockSize,
+            str(lun.ssd),
+            lun.model
             )
         )
-        return
 
     except vim.fault.NotAuthenticated:
         print('Context expired.')
