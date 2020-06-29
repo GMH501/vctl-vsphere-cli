@@ -19,7 +19,7 @@ def tasks(context, host):
         context = load_context(context=context)
         si = inject_token(context)
         content = si.content
-        for task in content,taskManager.recentTask:
+        for task in content.taskManager.recentTask:
             print(task.info)
 
     except ContextNotFound:

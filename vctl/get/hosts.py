@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import click
 from pyVmomi import vim, vmodl
 
@@ -24,17 +26,20 @@ def hosts(context, cluster):
             if not isinstance(cluster, vim.ClusterComputeResource):
                 print('Cluster {} not found.'.format(cluster))
                 raise SystemExit(1)
-            hosts = cluster_esource.host
+            hosts = cluster_resource.host
         else:
             hosts = get_obj(content, [vim.HostSystem])
         max_len = str(len(max([host.name for host in hosts], key=len)) + 4)
-        header_format = '{:<' + max_len + '}{:<15}{:<8}{:<8}{:<15}{:<12}{:<35}'
+        header_format = '{:<' + max_len + '}{:<15}{:<8}{:<8}{:<15}{:<17}{:<16}{:<10}{:<12}{:<35}'
         print(header_format.format(
             'NAME',
             'MEMORY(MB)',
             'CPU',
             'VMS',
-            'DATASTORES',    ####### TODO ADD UPTIME
+            'DATASTORES',
+            'CONNECT STATE',
+            'POWER STATE',
+            'AGE',
             'VERSION',
             'PARENT'
             )
@@ -45,7 +50,11 @@ def hosts(context, cluster):
             cores = host.hardware.cpuInfo.numCpuCores
             num_vms = len(host.vm)
             num_ds = len(host.datastore)
-            version = host.config.product.version
+            version = host.config.product.version if hasattr(host.config, 'product') else None
+            connectionState = str(host.runtime.connectionState)
+            powerState = str(host.runtime.powerState)
+            age = (datetime.now() - host.runtime.bootTime.replace(tzinfo=None)).days \
+                    if host.runtime.bootTime is not None else None
             parent = host.parent.name
             print(header_format.format(
                 name,
@@ -53,7 +62,10 @@ def hosts(context, cluster):
                 cores,
                 num_vms,
                 num_ds,
-                version,
+                connectionState,
+                powerState,
+                str(age),
+                str(version),
                 parent
                 )
             )
@@ -63,4 +75,4 @@ def hosts(context, cluster):
     except vim.fault.NotAuthenticated:
         print('Context expired.')
     except Exception as e:
-        print('Caught error:', e)
+        raise e#print('Caught error:', e)

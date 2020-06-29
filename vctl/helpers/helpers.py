@@ -76,12 +76,16 @@ def create_context(si, vcenter, username, password=None):
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = '{}#{}'.format(vcenter, random_string())
-    context = {'context': {'vcenter': vcenter,
-                        'version': si.content.about.fullName,
-                        'apiversion': apiversion,
-                        'username': username,
-                        'token': token},
-                'name': context_name}
+    context = {'context': 
+                {
+                    'vcenter': vcenter,
+                    'version': si.content.about.fullName,
+                    'apiversion': apiversion,
+                    'username': username,
+                    'token': token
+                },
+                'name': context_name
+    }
     if password:
         context['context']['password'] = bytes(password, encoding='utf-8')
     return context

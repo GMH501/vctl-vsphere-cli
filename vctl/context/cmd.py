@@ -18,8 +18,7 @@ except:
 
 @click.group()
 def context():
-    """
-    Context related subcommands.
+    """Context related subcommands.
     """
     pass
 
@@ -40,7 +39,7 @@ def context():
 def create(vcenter, username, password, save):
     """Create new context towards the specified vcenter.
 
-    # ex.: vctl config context create -v <vcenter> -u <username> -p <password>
+    # ex.: vctl context create -v <vcenter> -u <username> -p <password>
     """
     try:
         si = SmartConnect(host=vcenter,
@@ -60,7 +59,7 @@ def create(vcenter, username, password, save):
             config['contexts'].append(context)
             config['current-context'] = context['name']
             dump_config(config)
-  
+
     except vmodl.MethodFault as e:
         print('Caught vmodl fault: {}'.format(e.msg))
         raise SystemExit(1)
@@ -75,7 +74,7 @@ def create(vcenter, username, password, save):
 def rename(current, new):
     """Rename a context from <current> name to <new> name.
 
-    # ex.: vctl config context rename <current> <new>
+    # ex.: vctl context rename <current> <new>
     """
     if current == new:
         return
@@ -104,16 +103,16 @@ def refresh(context):
     try:
         config = load_config()
         inner_context = load_context(context=context)
-        if not 'password' in inner_context:
+        if 'password' not in inner_context:
             print('Password not found in context.')
             raise SystemExit(1)
         if not context:
             context = config['current-context']
         si = SmartConnect(host=inner_context['vcenter'],
-            user=inner_context['username'],
-            pwd=inner_context['password'],
-            sslContext=get_unverified_context(),
-            connectionPoolTimeout=-1)
+            user = inner_context['username'],
+            pwd = inner_context['password'],
+            sslContext = get_unverified_context(),
+            connectionPoolTimeout = -1)
         cookie = bytes(si._stub.cookie, encoding='utf-8')
         token = base64.b64encode(cookie)
         for _context in config['contexts']:
@@ -123,7 +122,7 @@ def refresh(context):
 
     except vim.fault.NotAuthenticated:
         print('Context is expired.')
-        raise SystemExit(1)   
+        raise SystemExit(1)
     except vmodl.MethodFault as e:
         print('Caught vmodl fault: {}'.format(e.msg))
         raise SystemExit(1)
@@ -140,7 +139,7 @@ def close(context):
     """Close the <context> towards the vcenter.
     The default context is <current-context>.
 
-    # ex.: vctl config context close [-c <context>]
+    # ex.: vctl context close [-c <context>]
     """
     context = load_context(context=context)
     try:
@@ -161,7 +160,7 @@ def remove(context):
     """Remove the <context> from the config file.\n
     The default <context> is current-context.
 
-    # ex.: vctl config context remove [-c <context>]
+    # ex.: vctl context remove [-c <context>]
     """
     try:
         config = load_config()
@@ -186,7 +185,7 @@ def remove(context):
 def use(context):
     """Set the current-context.
 
-    # ex.: vctl config context use <context>.
+    # ex.: vctl context use <context>.
     """
     try:
         config = load_config()

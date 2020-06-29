@@ -25,8 +25,8 @@ def vms(context, host):
         else:
             vms = get_obj(content, [vim.VirtualMachine])
         max_name_len = str(len(max([vm.name for vm in vms], key=len)) + 4)
-        vms_hostnames = [vm.summary.guest.hostName if vm.summary.guest.hostName is not None \
-            else 'hostname' for vm in vms]
+        vms_hostnames = [vm.summary.guest.hostName if vm.summary.guest.hostName is not None
+                            else 'hostname' for vm in vms]
         max_hostname_len = str(len(max(vms_hostnames, key=len)) + 4)
         header_format = '{:<' + max_name_len + '}{:<' + max_hostname_len + '}{:<15}{:<8}{:<18}{:<15}{:<35}'
         print(header_format.format(

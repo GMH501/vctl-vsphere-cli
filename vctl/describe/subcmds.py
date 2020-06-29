@@ -84,4 +84,3 @@ def vm(name, context, output):
     except Exception as e:
         print('Caught error: {}'.format(e))
         raise SystemExit(-1)
-

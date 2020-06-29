@@ -39,7 +39,7 @@ def get_http_cookie(token):
     return {cookie_name: cookie_text}
 
 
-def _mkticket( content, url, method='httpGet'):
+def _mkticket(content, url, method='httpGet'):
     spec = vim.SessionManager.HttpServiceRequestSpec()
     spec.url = url
     spec.method = method
@@ -156,7 +156,7 @@ def browse(ctx, datacenter, folder):
 
     except IndexError:
         print('Invalid operation.')
-        raise SystemExit(-1)  
+        raise SystemExit(-1)
     except vmodl.MethodFault as e:
         print("Caught vmodl fault : " + e.msg)
         raise SystemExit(-1)
@@ -256,7 +256,7 @@ def download(ctx, datacenter, file, local):
             total_length = r.headers.get('content-length')
             total_length = int(total_length)
             dl = 0
-            for chunk in r.iter_content(chunk_size=4096): 
+            for chunk in r.iter_content(chunk_size=4096):
                 dl += len(chunk)
                 f.write(chunk)
                 done = dl / total_length
