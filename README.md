@@ -7,18 +7,25 @@
 python -m pip install vctl
 ```
 ### Getting Started
+
+To create a context:
 ```
 C:\Users\gabriel>vctl context create -v vlab.example.local -u user -p password
+```
 
-C:\Users\gabriel>vctl get vms
-NAME                               HOSTNAME                           MEMORY(MB)     CPU     IPADDRESS         STATUS         HOST
-DC0_H0_VM0                         None                               32             1       None              poweredOn      DC0_H0
-DC0_H0_VM1                         None                               32             1       None              poweredOn      DC0_H0
-DC0_C0_RP0_VM0                     None                               32             1       None              poweredOn      DC0_C0_H2
-DC0_C0_RP0_VM1                     None                               32             1       None              poweredOn      DC0_C0_H0
-DC0_C1_RP0_VM0                     None                               32             1       None              poweredOn      DC0_C1_H2
-DC0_C1_RP0_VM1                     None                               32             1       None              poweredOn      DC0_C1_H2
-
+List the virtual machines on the host (esxi or vcenter):
+```
+C:\Users\gabriel>vctl get vms --format
+NAME              HOSTNAME    MEMORY(MB)     CPU     IPADDRESS         STATUS         HOST
+DC0_H0_VM0        None        32             1       None              poweredOn      DC0_H0
+DC0_H0_VM1        None        32             1       None              poweredOn      DC0_H0
+DC0_C0_RP0_VM0    None        32             1       None              poweredOn      DC0_C0_H2
+DC0_C0_RP0_VM1    None        32             1       None              poweredOn      DC0_C0_H0
+DC0_C1_RP0_VM0    None        32             1       None              poweredOn      DC0_C1_H2
+DC0_C1_RP0_VM1    None        32             1       None              poweredOn      DC0_C1_H2
+```
+Get a virtual machine configuration in YAML format:
+```
 C:\Users\gabriel>vctl describe vm DC0_H0_VM0 -o yaml
 config:
   name: DC0_H0_VM0
