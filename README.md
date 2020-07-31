@@ -6,3 +6,46 @@
 ```py
 python -m pip install vctl
 ```
+### Getting Started
+```
+C:\Users\gabriel>vctl context create -v vlab.example.local -u user -p password
+
+C:\Users\gabriel>vctl get vms
+NAME                               HOSTNAME                           MEMORY(MB)     CPU     IPADDRESS         STATUS         HOST
+DC0_H0_VM0                         None                               32             1       None              poweredOn      DC0_H0
+DC0_H0_VM1                         None                               32             1       None              poweredOn      DC0_H0
+DC0_C0_RP0_VM0                     None                               32             1       None              poweredOn      DC0_C0_H2
+DC0_C0_RP0_VM1                     None                               32             1       None              poweredOn      DC0_C0_H0
+DC0_C1_RP0_VM0                     None                               32             1       None              poweredOn      DC0_C1_H2
+DC0_C1_RP0_VM1                     None                               32             1       None              poweredOn      DC0_C1_H2
+
+C:\Users\gabriel>vctl describe vm DC0_H0_VM0 -o yaml
+config:
+  name: DC0_H0_VM0
+  vmPath: '[LocalDS_0] DC0_H0_VM0/DC0_H0_VM0.vmx'
+  uuid: 265104de-1472-547c-b873-6dc7883fb6cb
+  guestId: otherGuest
+  template: false
+guest:
+  hostname: null
+  guestOS: null
+  ipAddress: null
+  toolsStatus: toolsNotInstalled
+  hwVersion: null
+runtime:
+  host: DC0_H0
+  bootTime: Fri, 31 Jul 2020 09:52:45 +0200
+  connectionState: connected
+  powerState: poweredOn
+hardware:
+  numCPU: 1
+  numCoresPerSocket: 1
+  memoryMB: 32
+  numEthernetCards: 1
+  numVirtualDisks: 1
+  virtualDisks: []
+  virtualNics:
+  - label: ethernet-0
+    summary: 'DVSwitch: fea97929-4b2d-5972-b146-930c6d0b4014'
+    macAddress: 00:0c:29:36:63:62
+```
