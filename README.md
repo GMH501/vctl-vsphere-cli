@@ -13,6 +13,7 @@ To create a context:
 C:\Users\gabriel>vctl context create -v vlab.example.local -u user -p password
 ```
 
+### Usage examples
 List the virtual machines on the host (esxi or vcenter):
 ```
 C:\Users\gabriel>vctl get vms --format
@@ -24,6 +25,7 @@ DC0_C0_RP0_VM1    None        32             1       None              poweredOn
 DC0_C1_RP0_VM0    None        32             1       None              poweredOn      DC0_C1_H2
 DC0_C1_RP0_VM1    None        32             1       None              poweredOn      DC0_C1_H2
 ```
+
 Get a virtual machine configuration in YAML format:
 ```
 C:\Users\gabriel>vctl describe vm DC0_H0_VM0 -o yaml
@@ -55,4 +57,21 @@ hardware:
   - label: ethernet-0
     summary: 'DVSwitch: fea97929-4b2d-5972-b146-930c6d0b4014'
     macAddress: 00:0c:29:36:63:62
+```
+
+Execute a snapshot on a virtual machine:
+```
+C:\Users\gabriel>vctl vm DC0_H0_VM0 snapshot create -n snapshot_test -d description --quiesce --wait
+
+C:\Users\gabriel>vctl vm DC0_H0_VM0 snapshot list -o yaml
+snapshotInfo:
+  currentSnapshot: snapshot-105
+  rootSnapshotList:
+  - snapshot: snapshot-105
+    id: 1
+    name: snapshot_test
+    description: description
+    createTime: Fri, 31 Jul 2020 10:07:21 +0200
+    state: poweredOn
+    quiesced: true
 ```
