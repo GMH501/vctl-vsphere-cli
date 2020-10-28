@@ -9,7 +9,7 @@ setup(
     url="https://github.com/GMH501/vctl-sphere-cli",
     py_modules=["vctl"],
     include_package_data=True,
-    install_requires=["bs4", "click", "colorama", "pyopenssl", "pyvmomi", "pyvim", "pyyaml"],
+    install_requires=["bs4", "click", "colorama", "pyopenssl", "pyvmomi", "pyvim", "pyyaml", "openpyxl"],
     entry_points="""
         [console_scripts]
         vctl=vctl:vctl

@@ -14,7 +14,10 @@ from vctl.exceptions.exceptions import ContextNotFound
 @click.option('--host', '-h',
               help='the host for which you want to disply the vms.',
               required=False)
-def vms(context, host):
+@click.option('--format',
+              help='Format the output.',
+              is_flag=True)
+def vms(context, host, format):
     try:
         context = load_context(context=context)
         si = inject_token(context)
@@ -24,11 +27,15 @@ def vms(context, host):
             vms = host.vm
         else:
             vms = get_obj(content, [vim.VirtualMachine])
-        max_name_len = str(len(max([vm.name for vm in vms], key=len)) + 4)
-        vms_hostnames = [vm.summary.guest.hostName if vm.summary.guest.hostName is not None
-                            else 'hostname' for vm in vms]
-        max_hostname_len = str(len(max(vms_hostnames, key=len)) + 4)
-        header_format = '{:<' + max_name_len + '}{:<' + max_hostname_len + '}{:<15}{:<8}{:<18}{:<15}{:<35}'
+        if format:
+            max_name_len = str(len(max([vm.name for vm in vms], key=len)) + 4)
+            vms_hostnames = [vm.summary.guest.hostName if vm.summary.guest.hostName is not None
+                                else 'hostname' for vm in vms]
+            max_hostname_len = str(len(max(vms_hostnames, key=len)) + 4)
+        else:
+            max_name_len = '35' 
+            max_hostname_len = '35'
+        header_format = '{:<' + max_name_len + '}{:<' + max_hostname_len + '}{:<15}{:<8}{:<18.15}{:<15}{:<35}'
         print(header_format.format(
             'NAME',
             'HOSTNAME',

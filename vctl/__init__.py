@@ -10,7 +10,7 @@ from vctl.objects.vm import vm
 from vctl.objects.datastore import datastore
 from vctl.run.cmd import run
 from vctl.top.cmd import top
-
+from vctl.perfs.cmd import perfs
 
 @click.group()
 def vctl():
@@ -28,3 +28,4 @@ vctl.add_command(describe)
 vctl.add_command(vm)
 vctl.add_command(datastore)
 vctl.add_command(top)
+vctl.add_command(perfs)

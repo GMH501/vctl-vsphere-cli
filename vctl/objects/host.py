@@ -95,11 +95,14 @@ def luns(ctx):
             )
         )
         for lun in luns:
+            block = lun.capacity.block if hasattr(lun, 'capacity') else 'None'
+            blockSize = lun.capacity.blockSize if hasattr(lun, 'capacity') else 'None'
+            ssd = str(lun.ssd) if hasattr(lun, 'ssd') else 'None'
             print(header_format.format(
             lun.canonicalName,
-            lun.capacity.block,
-            lun.capacity.blockSize,
-            str(lun.ssd),
+            block,
+            blockSize,
+            ssd,
             lun.model
             )
         )
@@ -112,4 +115,4 @@ def luns(ctx):
         raise SystemExit(1)
     except Exception as e:
         print('Caught error: {}'.format(e))
-        SystemExit(1)
+        raise e #SystemExit(1)

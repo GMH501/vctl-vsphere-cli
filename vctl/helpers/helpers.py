@@ -91,6 +91,14 @@ def create_context(si, vcenter, username, password=None):
     return context
 
 
+def get_path(file):
+    file_path = file
+    if not file.startswith('/') or file.startswith(':', 1):
+            working_path = os.getcwd()
+            file_path = os.path.join(working_path, file)
+    return file_path
+
+
 def load_context(context=None):
     """Get the current context, dictionary styled.\n
     Args:
