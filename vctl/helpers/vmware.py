@@ -1,5 +1,7 @@
 import ssl
 
+from pyVmomi import vim
+
 
 def get_unverified_context():
     """Get an unverified ssl context.
@@ -30,6 +32,33 @@ def get_obj(content, vimtype, name=None):
         return obj
     container.Destroy()
     return objects
+
+
+def objectsInFolder(content, folder) -> list:
+    container = content.viewManager.CreateContainerView(content.rootFolder,
+                                                        [vim.Folder],
+                                                        True)
+    for c in container.view:
+        if folder == c.name:
+            obj = c
+            break
+    container.Destroy()
+    return obj.childEntity
+
+
+def yeldVmsInFolder(objects):
+    for obj in objects:
+        if isinstance(obj, vim.VirtualMachine):
+            yield obj
+        if isinstance(obj, vim.Folder):
+            yield from yeldVmsInFolder(obj.childEntity)
+
+
+def yeldVmsInCluster(hosts):
+    for host in hosts:
+        for vm in host.vm:
+            if isinstance(vm, vim.VirtualMachine):
+                yield vm
 
 
 def get_vm_hardware_lists(hardware):

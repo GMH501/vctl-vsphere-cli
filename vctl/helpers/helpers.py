@@ -76,7 +76,7 @@ def create_context(si, vcenter, username, password=None):
     cookie = bytes(si._stub.cookie, encoding='utf-8')
     token = base64.b64encode(cookie)
     context_name = '{}#{}'.format(vcenter, random_string())
-    context = {'context': 
+    context = {'context':
                 {
                     'vcenter': vcenter,
                     'version': si.content.about.fullName,
