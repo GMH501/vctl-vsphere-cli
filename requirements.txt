@@ -5,7 +5,7 @@ docopt==0.6.2
 idna==2.9
 prompt-toolkit==3.0.5
 pyflakes==2.2.0
-Pygments==2.6.1
+Pygments==2.7.4
 pyvim==3.0.2
 pyvmomi==7.0
 PyYAML==5.3.1
